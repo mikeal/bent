@@ -5,12 +5,15 @@ const qs = require('qs')
 const bl = require('bl')
 const caseless = require('caseless')
 
-const encodings = new Set(['json', 'buffer'])
+const encodings = new Set(['json', 'buffer', 'string'])
 
 class StatusError extends Error {
-  constructor (status) {
+  constructor (status, ...params) {
+    super(...params)
+
+    Error.captureStackTrace(this, StatusError)
+    this.message = `Incorrect statusCode: ${status}`
     this.statusCode = status
-    super(`Incorrect statusCode: ${status}`)
   }
 }
 
@@ -30,10 +33,10 @@ const bent = (...args) => {
           method = arg
         }
       } else {
-        if (encodings.has(encoding)) {
+        if (encodings.has(arg)) {
           encoding = arg
         } else {
-          throw new Error(`Unknown encoding, ${encoding}`)
+          throw new Error(`Unknown encoding, ${arg}`)
         }
       }
     } else if (typeof arg === 'number') {
@@ -43,6 +46,8 @@ const bent = (...args) => {
         throw new Error('Cannot set headers twice.')
       }
       headers = arg
+    } else {
+      throw new Error(`Unknown type: ${typeof arg}`)
     }
   })
 
@@ -51,16 +56,16 @@ const bent = (...args) => {
     statusCodes.add(200)
   }
 
-  return (_url, opts=null, body=null) => {
+  return (_url, opts = null, body = null) => {
     let parsed = url.parse(_url)
     if (opts) {
-      let query = qs.stringify(qs.parse(parsed.query), opts)
+      let query = qs.stringify(Object.assign(qs.parse(parsed.query), opts))
       parsed.path = `${parsed.pathname}?${query}`
     }
     let h
-    if (parsed.protocol === 'https') {
+    if (parsed.protocol === 'https:') {
       h = https
-    } else if (parsed.prototol === 'http') {
+    } else if (parsed.protocol === 'http:') {
       h = http
     } else {
       throw new Error(`Unknown protocol, ${parsed.protocol}`)
@@ -79,11 +84,12 @@ const bent = (...args) => {
     return new Promise((resolve, reject) => {
       let req = h.request(request, res => {
         if (!statusCodes.has(res.statusCode)) {
-          throw new StatusError(res.statusCode)
+          return reject(new StatusError(res.statusCode))
         }
         if (!encoding) return resolve(res)
         else {
           res.pipe(bl((err, buff) => {
+            /* istanbul ignore if */
             if (err) return reject(err)
             /* We already guard against these
                above so that we get an early error. */
@@ -92,6 +98,8 @@ const bent = (...args) => {
               resolve(buff)
             } else if (encoding === 'json') {
               resolve(JSON.parse(buff.toString()))
+            } else if (encoding === 'string') {
+              resolve(buff.toString())
             }
           }))
         }
@@ -104,3 +112,5 @@ const bent = (...args) => {
     })
   }
 }
+
+module.exports = bent
