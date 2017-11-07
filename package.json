@@ -1,0 +1,27 @@
+{
+  "name": "bent",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.mikealrogers.com)",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bl": "^1.2.1",
+    "caseless": "^0.12.0"
+  },
+  "devDependencies": {
+    "browserify": "^14.5.0",
+    "budo": "^10.0.4",
+    "codecov": "^3.0.0",
+    "cz-conventional-changelog": "^2.0.0",
+    "husky": "^0.14.3",
+    "semantic-release": "^8.2.0",
+    "standard": "^10.0.3",
+    "tap": "^10.7.2",
+    "validate-commit-msg": "^2.14.0"
+  }
+}
