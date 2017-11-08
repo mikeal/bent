@@ -51,3 +51,14 @@ test('Invalid type', t => {
     t.same(e.message, `Unknown type: boolean`)
   }
 })
+
+test('Invalid body', async t => {
+  t.plan(2)
+  let r = bent('PUT')
+  try {
+    await r('http://localhost:3000', true)
+  } catch (e) {
+    t.type(e, 'Error')
+    t.same(e.message, 'Unknown body type.')
+  }
+})

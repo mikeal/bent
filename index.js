@@ -1,8 +1,8 @@
 const http = require('http')
 const https = require('https')
 const url = require('url')
-const qs = require('qs')
 const bl = require('bl')
+const isStream = require('is-stream')
 const caseless = require('caseless')
 
 const encodings = new Set(['json', 'buffer', 'string'])
@@ -22,6 +22,7 @@ const bent = (...args) => {
   let method
   let encoding
   let headers
+  let baseurl = ''
 
   args.forEach(arg => {
     if (typeof arg === 'string') {
@@ -32,6 +33,8 @@ const bent = (...args) => {
         } else {
           method = arg
         }
+      } else if (arg.startsWith('http:') || arg.startsWith('https:')) {
+        baseurl = arg
       } else {
         if (encodings.has(arg)) {
           encoding = arg
@@ -56,12 +59,9 @@ const bent = (...args) => {
     statusCodes.add(200)
   }
 
-  return (_url, opts = null, body = null) => {
+  return (_url, body = null) => {
+    _url = baseurl + _url
     let parsed = url.parse(_url)
-    if (opts) {
-      let query = qs.stringify(Object.assign(qs.parse(parsed.query), opts))
-      parsed.path = `${parsed.pathname}?${query}`
-    }
     let h
     if (parsed.protocol === 'https:') {
       h = https
@@ -104,11 +104,20 @@ const bent = (...args) => {
           }))
         }
       })
-      if (body) {
-        req.write(body)
-      }
       req.on('error', reject)
-      req.end()
+      if (body) {
+        if (Buffer.isBuffer(body)) {
+          req.end(body)
+        } else if (isStream(body)) {
+          body.pipe(req)
+        } else if (typeof body === 'object') {
+          req.end(JSON.stringify(body))
+        } else {
+          reject(new Error('Unknown body type.'))
+        }
+      } else {
+        req.end()
+      }
     })
   }
 }

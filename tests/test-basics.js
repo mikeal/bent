@@ -36,6 +36,13 @@ httpTest('basic 200 ok', async t => {
   t.same(str, 'ok')
 })
 
+httpTest('basic 200 ok baseurl', async t => {
+  t.plan(1)
+  let request = bent('string', 'http://localhost:3000')
+  let str = await request('/basic')
+  t.same(str, 'ok')
+})
+
 httpTest('basic 200', async t => {
   t.plan(1)
   let request = bent()
@@ -75,7 +82,7 @@ test('basic PUT', async t => {
   })
   await promisify(cb => server.listen(3000, cb))()
   let request = bent('PUT', 'string')
-  let str = await request('http://localhost:3000/', null, body)
+  let str = await request('http://localhost:3000/', body)
   t.same(str, 'ok')
   await promisify(cb => server.close(cb))()
 })
@@ -99,14 +106,40 @@ httpTest('status 201', async t => {
   }
 })
 
-paths['/query?txt=ok'] = (req, res) => {
-  let q = req.url.slice(req.url.indexOf('?'))
-  res.end(q)
-}
+test('PUT stream', async t => {
+  t.plan(2)
+  let body = await promisify(cb => crypto.randomBytes(1024, cb))()
+  let server = http.createServer((req, res) => {
+    req.pipe(bl((err, buff) => {
+      /* istanbul ignore if */
+      if (err) throw err
+      t.same(buff, body)
+      res.end('ok')
+    }))
+  })
+  await promisify(cb => server.listen(3000, cb))()
+  let request = bent('PUT', 'string')
+  let b = bl()
+  let str = request('http://localhost:3000/', b)
+  b.write(body)
+  b.end()
+  t.same(await str, 'ok')
+  await promisify(cb => server.close(cb))()
+})
 
-httpTest('query opts', async t => {
-  t.plan(1)
-  let request = bent('string')
-  let str = await request('http://localhost:3000/query', {txt: 'ok'})
-  t.same(str, '?txt=ok')
+test('PUT JSON', async t => {
+  t.plan(2)
+  let server = http.createServer((req, res) => {
+    req.pipe(bl((err, buff) => {
+      /* istanbul ignore if */
+      if (err) throw err
+      t.same(JSON.parse(buff.toString()), {ok: 200})
+      res.end('ok')
+    }))
+  })
+  await promisify(cb => server.listen(3000, cb))()
+  let request = bent('PUT', 'string')
+  let str = await request('http://localhost:3000/', {ok: 200})
+  t.same(await str, 'ok')
+  await promisify(cb => server.close(cb))()
 })

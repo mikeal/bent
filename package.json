@@ -1,7 +1,7 @@
 {
   "name": "bent",
   "version": "0.0.0-development",
-  "description": "",
+  "description": "Functional HTTP client for Node.js w/ async/await.",
   "main": "index.js",
   "scripts": {
     "commit": "git-cz",
@@ -17,7 +17,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bl": "^1.2.1",
-    "caseless": "^0.12.0"
+    "caseless": "^0.12.0",
+    "is-stream": "^1.1.0"
   },
   "devDependencies": {
     "browserify": "^14.5.0",
