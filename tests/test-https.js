@@ -12,9 +12,9 @@ const options = {
 
 test('basic https', async t => {
   t.plan(2)
-  let server = https.createServer(options, (req, res) => {
-    res.end('ok')
-  })
+  let server = https.createServer(options,
+    /* istanbul ignore next */ () => {}
+  )
   await promisify(cb => server.listen(3000, cb))()
   let request = bent('string')
   try {

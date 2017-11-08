@@ -7,6 +7,7 @@ const {promisify} = require('util')
 let paths = {}
 
 let handler = (req, res) => {
+  /* istanbul ignore if */
   if (!paths[req.url]) {
     throw new Error(`No path for URL. ${req.url}`)
   }
@@ -66,6 +67,7 @@ test('basic PUT', async t => {
   let body = await promisify(cb => crypto.randomBytes(1024, cb))()
   let server = http.createServer((req, res) => {
     req.pipe(bl((err, buff) => {
+      /* istanbul ignore if */
       if (err) throw err
       t.same(buff, body)
       res.end('ok')
