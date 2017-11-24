@@ -6,7 +6,7 @@
   "scripts": {
     "commit": "git-cz",
     "test": "tap tests/test-*.js --100",
-    "posttest": "standard",
+    "posttest": "standard --fix",
     "precommit": "npm test",
     "prepush": "npm test",
     "commitmsg": "validate-commit-msg",
