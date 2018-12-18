@@ -10,7 +10,7 @@
     "precommit": "npm test",
     "prepush": "npm test",
     "commitmsg": "validate-commit-msg",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.mikealrogers.com)",
@@ -26,7 +26,7 @@
     "codecov": "^3.0.0",
     "cz-conventional-changelog": "^2.1.0",
     "husky": "^0.14.3",
-    "semantic-release": "^8.2.0",
+    "semantic-release": "^15.13.1",
     "standard": "^10.0.3",
     "tap": "^10.7.3",
     "validate-commit-msg": "^2.14.0"
