@@ -8,12 +8,13 @@ const caseless = require('caseless')
 const encodings = new Set(['json', 'buffer', 'string'])
 
 class StatusError extends Error {
-  constructor (status, ...params) {
+  constructor (res, ...params) {
     super(...params)
 
     Error.captureStackTrace(this, StatusError)
-    this.message = `Incorrect statusCode: ${status}`
-    this.statusCode = status
+    this.message = `Incorrect statusCode: ${res.statusCode}`
+    this.statusCode = res.statusCode
+    this.res = res
   }
 }
 
@@ -84,7 +85,7 @@ const bent = (...args) => {
     return new Promise((resolve, reject) => {
       let req = h.request(request, res => {
         if (!statusCodes.has(res.statusCode)) {
-          return reject(new StatusError(res.statusCode))
+          return reject(new StatusError(res))
         }
         if (!encoding) return resolve(res)
         else {
