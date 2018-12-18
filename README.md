@@ -25,6 +25,17 @@ As you can see, bent is a function that returns an async function.
 Bent takes options which constrain what is accepted by the client.
 Any response that falls outside the constraints will generate an error.
 
+If you don't set a response encoding (`'json'`, `'string'` or `'buffer'`)
+then the response stream will be returned after the statusCode check.
+
+```javascript
+const bent = require('bent')
+
+const getStream = bent('http://site.com')
+
+let stream = await getStream('/json.api')
+```
+
 The following options are available.
 
 * **HTTP Method**: `'GET'`, `'PUT'`, and any ALLCAPS string will be
