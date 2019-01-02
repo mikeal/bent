@@ -80,7 +80,9 @@ const bent = (...args) => {
     }
     if (encoding === 'json') {
       let c = caseless(request.headers)
-      c.set('accept', 'application/json')
+      if (!c.get('accept')) {
+        c.set('accept', 'application/json')
+      }
     }
     return new Promise((resolve, reject) => {
       let req = h.request(request, res => {

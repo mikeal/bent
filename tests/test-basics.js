@@ -69,6 +69,18 @@ httpTest('basic json', async t => {
   t.same({ok: 200}, json)
 })
 
+paths['/media-type'] = (req, res) => {
+  res.setHeader('content-type', 'application/json')
+  res.end(JSON.stringify({ok: 200, accept: req.headers.accept}))
+}
+
+httpTest('json based media type', async t => {
+  t.plan(1)
+  let request = bent('json', { accept: 'application/vnd.something.com' })
+  let json = await request('http://localhost:3000/media-type')
+  t.same({ok: 200, accept: 'application/vnd.something.com'}, json)
+})
+
 test('basic PUT', async t => {
   t.plan(2)
   let body = await promisify(cb => crypto.randomBytes(1024, cb))()
