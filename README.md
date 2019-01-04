@@ -17,7 +17,7 @@ const getJSON = bent('json')
 const getBuffer = bent('buffer')
 
 let obj = await getJSON('http://site.com/json.api')
-let buffer = await getBuffer('http//site.com/image.png')
+let buffer = await getBuffer('http://site.com/image.png')
 ```
 
 As you can see, bent is a function that returns an async function.
