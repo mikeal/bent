@@ -28,7 +28,7 @@
     "husky": "^0.14.3",
     "semantic-release": "^15.13.1",
     "standard": "^10.0.3",
-    "tap": "^10.7.3",
+    "tap": "^12.5.0",
     "validate-commit-msg": "^2.14.0"
   },
   "repository": {
