@@ -16,7 +16,7 @@
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.mikealrogers.com)",
   "license": "Apache-2.0",
   "dependencies": {
-    "bl": "^1.2.1",
+    "bl": "^2.1.2",
     "caseless": "^0.12.0",
     "is-stream": "^1.1.0"
   },
