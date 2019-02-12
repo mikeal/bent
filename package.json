@@ -1,6 +1,6 @@
 {
   "name": "bent",
-  "version": "0.0.0-development",
+  "version": "5.0.0",
   "description": "Functional HTTP client for Node.js w/ async/await.",
   "main": "index.js",
   "scripts": {
