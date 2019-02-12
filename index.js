@@ -100,7 +100,14 @@ const bent = (...args) => {
             if (encoding === 'buffer') {
               resolve(buff)
             } else if (encoding === 'json') {
-              resolve(JSON.parse(buff.toString()))
+              let ret
+              try {
+                ret = JSON.parse(buff.toString())
+                resolve(ret)
+              } catch (e) {
+                e.message += `str"${buff.toString()}"`
+                reject(e)
+              }
             } else if (encoding === 'string') {
               resolve(buff.toString())
             }
