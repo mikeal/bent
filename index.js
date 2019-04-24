@@ -14,7 +14,11 @@ class StatusError extends Error {
     Error.captureStackTrace(this, StatusError)
     this.message = `Incorrect statusCode: ${res.statusCode}`
     this.statusCode = res.statusCode
-    this.res = res
+    this.responseBody = new Promise((resolve) => {
+      let buffers = []
+      res.on('data', chunk => buffers.push(chunk))
+      res.on('end', () => resolve(Buffer.concat(buffers)))
+    })
   }
 }
 

@@ -155,3 +155,20 @@ test('PUT JSON', async t => {
   t.same(await str, 'ok')
   await promisify(cb => server.close(cb))()
 })
+
+paths['/errorResponseBody'] = (req, res) => {
+  res.statusCode = 500
+  res.end('hello world')
+}
+
+httpTest('500 Response body', async t => {
+  let request = bent()
+  let body
+  try {
+    await request('http://localhost:3000/errorResponseBody')
+  } catch (e) {
+    body = e.responseBody
+  }
+  let buffer = await body
+  t.same(buffer.toString(), 'hello world')
+})
