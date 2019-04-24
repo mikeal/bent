@@ -2,7 +2,7 @@
   "name": "bent",
   "version": "5.0.0",
   "description": "Functional HTTP client for Node.js w/ async/await.",
-  "main": "index.js",
+  "main": "src/nodejs.js",
   "scripts": {
     "commit": "git-cz",
     "test": "tap tests/test-*.js --100",
