@@ -1,5 +1,5 @@
 const bent = require('../')
-const {test} = require('tap')
+const { test } = require('tap')
 
 test('Invalid encoding', t => {
   t.plan(2)

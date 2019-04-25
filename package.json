@@ -17,8 +17,8 @@
     "is-stream": "^2.0.0"
   },
   "devDependencies": {
-    "standard": "^10.0.3",
-    "tap": "^13.0.0-rc.20"
+    "standard": "^12.0.1",
+    "tap": "^12.6.5"
   },
   "repository": {
     "type": "git",

@@ -2,8 +2,8 @@ const https = require('https')
 const fs = require('fs')
 const path = require('path')
 const bent = require('../')
-const {test} = require('tap')
-const {promisify} = require('util')
+const { test } = require('tap')
+const { promisify } = require('util')
 
 const options = {
   key: fs.readFileSync(path.join(__dirname, 'server.key')),

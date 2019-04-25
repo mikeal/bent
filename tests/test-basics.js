@@ -2,7 +2,7 @@ const http = require('http')
 const bent = require('../')
 const bl = require('bl')
 const crypto = require('crypto')
-const {promisify} = require('util')
+const { promisify } = require('util')
 
 let paths = {}
 
@@ -14,7 +14,7 @@ let handler = (req, res) => {
   paths[req.url](req, res)
 }
 
-const {test} = require('tap')
+const { test } = require('tap')
 
 const httpTest = (str, fn) => {
   test(str, async t => {
@@ -59,26 +59,26 @@ httpTest('basic buffer', async t => {
 
 paths['/json'] = (req, res) => {
   res.setHeader('content-type', 'application/json')
-  res.end(JSON.stringify({ok: 200}))
+  res.end(JSON.stringify({ ok: 200 }))
 }
 
 httpTest('basic json', async t => {
   t.plan(1)
   let request = bent('json')
   let json = await request('http://localhost:3000/json')
-  t.same({ok: 200}, json)
+  t.same({ ok: 200 }, json)
 })
 
 paths['/media-type'] = (req, res) => {
   res.setHeader('content-type', 'application/json')
-  res.end(JSON.stringify({ok: 200, accept: req.headers.accept}))
+  res.end(JSON.stringify({ ok: 200, accept: req.headers.accept }))
 }
 
 httpTest('json based media type', async t => {
   t.plan(1)
   let request = bent('json', { accept: 'application/vnd.something.com' })
   let json = await request('http://localhost:3000/media-type')
-  t.same({ok: 200, accept: 'application/vnd.something.com'}, json)
+  t.same({ ok: 200, accept: 'application/vnd.something.com' }, json)
 })
 
 test('basic PUT', async t => {
@@ -145,13 +145,13 @@ test('PUT JSON', async t => {
     req.pipe(bl((err, buff) => {
       /* istanbul ignore if */
       if (err) throw err
-      t.same(JSON.parse(buff.toString()), {ok: 200})
+      t.same(JSON.parse(buff.toString()), { ok: 200 })
       res.end('ok')
     }))
   })
   await promisify(cb => server.listen(3000, cb))()
   let request = bent('PUT', 'string')
-  let str = await request('http://localhost:3000/', {ok: 200})
+  let str = await request('http://localhost:3000/', { ok: 200 })
   t.same(await str, 'ok')
   await promisify(cb => server.close(cb))()
 })
