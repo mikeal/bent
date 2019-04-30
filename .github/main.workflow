@@ -4,13 +4,14 @@ workflow "Build and Publish" {
 }
 
 action "Build" {
-  uses = "ianwalter/puppeteer@master"
+  uses = "actions/npm@master"
   args = "install"
 }
 
 action "Test" {
   needs = ["Build"]
   uses = "ianwalter/puppeteer@master"
+  runs = "npm"
   args = "test"
 }
 
