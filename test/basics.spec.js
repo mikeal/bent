@@ -1,3 +1,4 @@
+'use strict'
 const bent = require('../')
 const assert = require('assert')
 const tsame = require('tsame')

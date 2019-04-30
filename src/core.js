@@ -1,3 +1,4 @@
+'use strict'
 const encodings = new Set(['json', 'buffer', 'string'])
 
 module.exports = mkrequest => (...args) => {

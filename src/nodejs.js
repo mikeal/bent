@@ -1,6 +1,7 @@
+'use strict'
 const http = require('http')
 const https = require('https')
-const url = require('url')
+const { URL } = require('url')
 const bl = require('bl')
 const isStream = require('is-stream')
 const caseless = require('caseless')
@@ -23,7 +24,7 @@ class StatusError extends Error {
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null) => {
   _url = baseurl + _url
-  let parsed = url.parse(_url)
+  let parsed = new URL(_url)
   let h
   if (parsed.protocol === 'https:') {
     h = https
@@ -33,7 +34,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     throw new Error(`Unknown protocol, ${parsed.protocol}`)
   }
   let request = {
-    path: parsed.path,
+    path: parsed.pathname + parsed.search,
     port: parsed.port,
     method: method,
     headers: headers || {},
