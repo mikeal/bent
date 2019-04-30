@@ -82,6 +82,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
       } else if (isStream(body)) {
         body.pipe(req)
       } else if (typeof body === 'object') {
+        req.setHeader('content-type', 'application/json')
         req.end(JSON.stringify(body))
       } else {
         reject(new Error('Unknown body type.'))

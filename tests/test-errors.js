@@ -1,64 +1,65 @@
 const bent = require('../')
-const {test} = require('tap')
+const tsame = require('tsame')
+const assert = require('assert')
+const { it } = require('mocha')
 
-test('Invalid encoding', t => {
-  t.plan(2)
+const test = it
+const same = (x, y) => assert.ok(tsame(x, y))
+
+const ttype = (e, str) => same(e.constructor.name, str)
+
+test('Invalid encoding', async () => {
   try {
     bent('blah')
   } catch (e) {
-    t.type(e, 'Error')
-    t.same(e.message, `Unknown encoding, blah`)
+    ttype(e, 'Error')
+    same(e.message, `Unknown encoding, blah`)
   }
 })
 
-test('double method', t => {
-  t.plan(2)
+test('double method', async () => {
   try {
     bent('GET', 'PUT')
   } catch (e) {
-    t.type(e, 'Error')
-    t.same(e.message, `Can't set method to PUT, already set to GET.`)
+    ttype(e, 'Error')
+    same(e.message, `Can't set method to PUT, already set to GET.`)
   }
 })
 
-test('double headers', t => {
-  t.plan(2)
+test('double headers', async () => {
   try {
     bent({}, {})
   } catch (e) {
-    t.type(e, 'Error')
-    t.same(e.message, 'Cannot set headers twice.')
+    ttype(e, 'Error')
+    same(e.message, 'Cannot set headers twice.')
   }
 })
 
-test('unknown protocol', t => {
-  t.plan(2)
+test('unknown protocol', async () => {
   try {
     let request = bent()
     request('ftp://host.com')
   } catch (e) {
-    t.type(e, 'Error')
-    t.same(e.message, `Unknown protocol, ftp:`)
+    ttype(e, 'Error')
+    same(e.message, `Unknown protocol, ftp:`)
   }
 })
 
-test('Invalid type', t => {
-  t.plan(2)
+test('Invalid type', async () => {
   try {
     bent(true)
   } catch (e) {
-    t.type(e, 'Error')
-    t.same(e.message, `Unknown type: boolean`)
+    ttype(e, 'Error')
+    same(e.message, `Unknown type: boolean`)
   }
 })
 
-test('Invalid body', async t => {
-  t.plan(2)
+test('Invalid body', async () => {
   let r = bent('PUT')
   try {
     await r('http://localhost:3000', true)
   } catch (e) {
-    t.type(e, 'Error')
-    t.same(e.message, 'Unknown body type.')
+    ttype(e, 'Error')
+    same(e.message, 'Unknown body type.')
   }
 })
