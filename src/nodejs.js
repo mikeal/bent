@@ -48,6 +48,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   }
   return new Promise((resolve, reject) => {
     const req = h.request(request, res => {
+      res.status = res.statusCode
       if (!statusCodes.has(res.statusCode)) {
         return reject(new StatusError(res))
       }

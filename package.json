@@ -3,6 +3,7 @@
   "version": "0.0.0-dev",
   "description": "Functional HTTP client for Node.js w/ async/await.",
   "main": "src/nodejs.js",
+  "browser": "src/browser.js",
   "scripts": {
     "test": "nyc --branches 100 --functions 100 --lines 100 aegir test -t node",
     "pretest": "aegir lint"

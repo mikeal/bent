@@ -12,6 +12,10 @@ const same = (x, y) => assert.ok(tsame(x, y))
 const baseurl = 'https://echo-server.mikeal.now.sh/src'
 const u = path => baseurl + path
 
+const enc = str => (new TextEncoder()).encode(str).buffer
+const dec = str => Uint8Array.from(atob(str), c => c.charCodeAt(0)).buffer
+const decode = arr => (new TextDecoder('utf-8')).decode(arr)
+
 test('basic 200 ok', async () => {
   const request = bent('string')
   const str = await request(u('/echo.js?body=ok'))
@@ -33,7 +37,11 @@ test('basic 200', async () => {
 test('basic buffer', async () => {
   const request = bent('buffer')
   const buff = await request(u('/echo.js?body=ok'))
-  same(buff, Buffer.from('ok'))
+  if (buff instanceof ArrayBuffer) {
+    same(buff, enc('ok'))
+  } else {
+    same(buff, Buffer.from('ok'))
+  }
 })
 
 test('basic json', async () => {
@@ -50,9 +58,18 @@ test('json based media type', async () => {
 
 test('basic PUT', async () => {
   const request = bent('PUT', 'json')
-  const body = Buffer.from(Math.random().toString())
+  let body
+  if (process.browser) {
+    body = enc(Math.random().toString())
+  } else {
+    body = Buffer.from(Math.random().toString())
+  }
   const json = await request(u('/info.js'), body)
-  same(Buffer.from(json.base64, 'base64'), body)
+  if (process.browser) {
+    same(dec(json.base64), body)
+  } else {
+    same(Buffer.from(json.base64, 'base64'), body)
+  }
 })
 
 test('status 201', async () => {
@@ -62,6 +79,7 @@ test('status 201', async () => {
 
   try {
     await request(u('/echo.js?body=ok'))
+    throw new Error('Call should have thrown.')
   } catch (e) {
     same(e.message, 'Incorrect statusCode: 200')
   }
@@ -83,7 +101,12 @@ test('PUT stream', async () => {
 test('PUT JSON', async () => {
   const request = bent('PUT', 'json')
   const info = await request(u('/info.js'), { ok: 200 })
-  const res = JSON.parse(Buffer.from(info.base64, 'base64').toString())
+  let res
+  if (process.browser) {
+    res = JSON.parse(atob(info.base64))
+  } else {
+    res = JSON.parse(Buffer.from(info.base64, 'base64').toString())
+  }
   same(res, { ok: 200 })
   same(info.headers['content-type'], 'application/json')
 })
@@ -97,5 +120,9 @@ test('500 Response body', async () => {
     body = e.responseBody
   }
   const buffer = await body
-  same(buffer.toString(), 'ok')
+  if (process.browser) {
+    same(decode(buffer), 'ok')
+  } else {
+    same(buffer.toString(), 'ok')
+  }
 })

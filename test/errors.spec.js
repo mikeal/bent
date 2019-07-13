@@ -39,14 +39,14 @@ test('double headers', done => {
   }
 })
 
-test('unknown protocol', done => {
+test('unknown protocol', async () => {
   try {
     const request = bent()
-    request('ftp://host.com')
+    await request('ftp://host.com')
+    throw new Error('Should have already failed')
   } catch (e) {
     ttype(e, 'Error')
     same(e.message, `Unknown protocol, ftp:`)
-    done()
   }
 })
 
@@ -64,6 +64,7 @@ test('Invalid body', async () => {
   const r = bent('PUT')
   try {
     await r('http://localhost:3000', true)
+    throw new Error('Should have failed')
   } catch (e) {
     ttype(e, 'Error')
     same(e.message, 'Unknown body type.')
