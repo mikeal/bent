@@ -2,6 +2,8 @@
 
 Functional HTTP client for Node.js w/ async/await.
 
+*Incredibly small browser version built on fetch w/ no external dependencies or polyfills.*
+
 ## Usage
 
 ```javascript
@@ -26,7 +28,7 @@ const response = await post('cars/new', {name: 'bmw', wheels: 4});
 ```
 
 If you don't set a response encoding (`'json'`, `'string'` or `'buffer'`)
-then the response stream will be returned after the statusCode check.
+then the response object will be returned after the statusCode check.
 
 ```javascript
 const bent = require('bent')
@@ -42,7 +44,8 @@ The following options are available.
   used to set the HTTP method. Defaults to `'GET'`
 * **Response Encoding**: Available options are `'string'`, `'buffer'`, and
   `'json'`. If no encoding is set, which is the default, the response
-  object/stream will be returned instead of a decoded response.
+  object/stream will be returned instead of a decoded response. *Browser returns
+  `ArrayBuffer` instead of `Buffer`.
 * **Status Codes**: Any number will be considered an acceptable status code.   If none are provided `200` will be the only acceptable status code, but
   if status codes are provided `200` must be added explicitely.
 * **Headers**: An object can be passed to set request headers.
@@ -56,7 +59,7 @@ The returned async function is used for subsequent requests.
 
 * **url**: Fully qualified URL to the remote resource, or in the case that a
   base URL is passed the remaining URL string.
-* **body**: Request body. Can be stream, buffer or JSON object.
+* **body**: Request body. Can be string, stream (node.js), buffer (node.js), ArrayBuffer (browser), or JSON object.
 
 ```javascript
 const bent = require('bent')
