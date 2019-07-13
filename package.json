@@ -2,23 +2,24 @@
   "name": "bent",
   "version": "0.0.0-dev",
   "description": "Functional HTTP client for Node.js w/ async/await.",
-  "main": "index.js",
+  "main": "src/nodejs.js",
+  "browser": "src/browser.js",
   "scripts": {
-    "test": "tap tests/test-*.js --100",
-    "pretest": "standard",
-    "precommit": "npm test"
+    "test": "nyc --check-coverage --branches 100 --functions 100 --lines 100 aegir test -t node browser",
+    "pretest": "aegir lint"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.mikealrogers.com)",
   "license": "Apache-2.0",
   "dependencies": {
     "bl": "^3.0.0",
-    "caseless": "^0.12.0",
+    "caseless": "~0.12.0",
     "is-stream": "^2.0.0"
   },
   "devDependencies": {
-    "standard": "^12.0.1",
-    "tap": "^12.6.5"
+    "aegir": "^20.0.0",
+    "nyc": "^14.1.1",
+    "tsame": "^2.0.1"
   },
   "repository": {
     "type": "git",
