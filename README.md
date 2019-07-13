@@ -45,7 +45,7 @@ The following options are available.
 * **Response Encoding**: Available options are `'string'`, `'buffer'`, and
   `'json'`. If no encoding is set, which is the default, the response
   object/stream will be returned instead of a decoded response. *Browser returns
-  `ArrayBuffer` instead of `Buffer`.
+  `ArrayBuffer` instead of `Buffer`.*
 * **Status Codes**: Any number will be considered an acceptable status code.   If none are provided `200` will be the only acceptable status code, but
   if status codes are provided `200` must be added explicitely.
 * **Headers**: An object can be passed to set request headers.
@@ -54,6 +54,9 @@ The following options are available.
   URL string.
 
 The returned async function is used for subsequent requests.
+
+When working with Binary this library uses different types in the browser and Node.js. In Node.js all binary must be done
+the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer view type (UInt8Array, etc).
 
 ### `async request(url[, body=null])`
 
