@@ -1,3 +1,4 @@
+'use strict'
 /* global fetch */
 const core = require('./core')
 
@@ -16,17 +17,17 @@ class StatusError extends Error {
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_url, body) => {
   _url = baseurl + _url
   const parsed = new URL(_url)
-  
+
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
     throw new Error(`Unknown protocol, ${parsed.protocol}`)
   }
-  
+
   if (body) {
     if (body instanceof ArrayBuffer ||
       ArrayBuffer.isView(body) ||
       typeof body === 'string'
     ) {
-      body = body // noop
+      // noop
     } else if (typeof body === 'object') {
       body = JSON.stringify(body)
       if (!headers) headers = {}
@@ -36,7 +37,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_u
     }
   }
 
-  let resp = await fetch(_url, {method, headers, body})
+  const resp = await fetch(_url, { method, headers, body })
   resp.statusCode = resp.status
 
   if (!statusCodes.has(resp.status)) {

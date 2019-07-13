@@ -1,3 +1,4 @@
+/* globals atob */
 'use strict'
 const bent = require('../')
 const assert = require('assert')
