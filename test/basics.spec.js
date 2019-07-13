@@ -73,6 +73,16 @@ test('basic PUT', async () => {
   }
 })
 
+test('base PUT string', async () => {
+  const request = bent('PUT', 'json')
+  const json = await request(u('/info.js'), 'teststring')
+  if (process.browser) {
+    same(atob(json.base64), 'teststring')
+  } else {
+    same(Buffer.from(json.base64, 'base64').toString(), 'teststring')
+  }
+})
+
 test('status 201', async () => {
   const request = bent('string', 201)
   const str = await request(u('/echo.js?statusCode=201&body=ok'))
