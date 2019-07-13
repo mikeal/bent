@@ -15,7 +15,7 @@ class StatusError extends Error {
     this.message = `Incorrect statusCode: ${res.statusCode}`
     this.statusCode = res.statusCode
     this.responseBody = new Promise((resolve) => {
-      let buffers = []
+      const buffers = []
       res.on('data', chunk => buffers.push(chunk))
       res.on('end', () => resolve(Buffer.concat(buffers)))
     })
@@ -24,7 +24,7 @@ class StatusError extends Error {
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null) => {
   _url = baseurl + _url
-  let parsed = new URL(_url)
+  const parsed = new URL(_url)
   let h
   if (parsed.protocol === 'https:') {
     h = https
@@ -33,7 +33,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   } else {
     throw new Error(`Unknown protocol, ${parsed.protocol}`)
   }
-  let request = {
+  const request = {
     path: parsed.pathname + parsed.search,
     port: parsed.port,
     method: method,
@@ -41,13 +41,13 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     hostname: parsed.hostname
   }
   if (encoding === 'json') {
-    let c = caseless(request.headers)
+    const c = caseless(request.headers)
     if (!c.get('accept')) {
       c.set('accept', 'application/json')
     }
   }
   return new Promise((resolve, reject) => {
-    let req = h.request(request, res => {
+    const req = h.request(request, res => {
       if (!statusCodes.has(res.statusCode)) {
         return reject(new StatusError(res))
       }

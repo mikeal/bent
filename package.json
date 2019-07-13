@@ -16,8 +16,8 @@
     "is-stream": "^2.0.0"
   },
   "devDependencies": {
-    "aegir": "^18.2.2",
-    "nyc": "^14.0.0",
+    "aegir": "^20.0.0",
+    "nyc": "^14.1.1",
     "tsame": "^2.0.1"
   },
   "repository": {

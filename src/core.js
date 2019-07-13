@@ -2,7 +2,7 @@
 const encodings = new Set(['json', 'buffer', 'string'])
 
 module.exports = mkrequest => (...args) => {
-  let statusCodes = new Set()
+  const statusCodes = new Set()
   let method
   let encoding
   let headers
@@ -12,7 +12,7 @@ module.exports = mkrequest => (...args) => {
     if (typeof arg === 'string') {
       if (arg.toUpperCase() === arg) {
         if (method) {
-          let msg = `Can't set method to ${arg}, already set to ${method}.`
+          const msg = `Can't set method to ${arg}, already set to ${method}.`
           throw new Error(msg)
         } else {
           method = arg
