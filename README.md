@@ -63,7 +63,7 @@ the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer vie
 * **url**: Fully qualified URL to the remote resource, or in the case that a
   base URL is passed the remaining URL string.
 * **body**: Request body. Can be a string, a stream (node.js), a buffer (node.js),
-  an ArrayBuffer (browse), or a JSON object.
+  an ArrayBuffer (browser), or a JSON object.
 
 ```javascript
 const bent = require('bent')
