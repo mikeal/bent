@@ -24,8 +24,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/mikeal/bent.git"
-  },
-  "files": [
-    "index.js"
-  ]
+  }
 }
+
