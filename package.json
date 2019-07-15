@@ -26,6 +26,6 @@
     "url": "https://github.com/mikeal/bent.git"
   },
   "files": [
-    "index.js"
+    "src/core.js"
   ]
 }
