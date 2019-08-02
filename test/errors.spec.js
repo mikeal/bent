@@ -70,3 +70,13 @@ test('Invalid body', async () => {
     same(e.message, 'Unknown body type.')
   }
 })
+
+test('Invalid json', async () => {
+  const r = bent('GET', 'json')
+  try {
+    await r('https://echo-server.mikeal.now.sh/src/echo.js?body=[asdf]')
+    throw new Error('Should have failed')
+  } catch (e) {
+    assert.ok(e.message.startsWith('Unexpected token a in JSON'))
+  }
+})

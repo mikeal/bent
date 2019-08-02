@@ -2,7 +2,6 @@
 const http = require('http')
 const https = require('https')
 const { URL } = require('url')
-const bl = require('bl')
 const isStream = require('is-stream')
 const caseless = require('caseless')
 const bent = require('./core')
@@ -21,6 +20,13 @@ class StatusError extends Error {
     })
   }
 }
+
+const getBuffer = stream => new Promise((resolve, reject) => {
+  const parts = []
+  stream.on('error', reject)
+  stream.on('end', () => resolve(Buffer.concat(parts)))
+  stream.on('data', d => parts.push(d))
+})
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null) => {
   _url = baseurl + _url
@@ -47,34 +53,29 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     }
   }
   return new Promise((resolve, reject) => {
-    const req = h.request(request, res => {
+    const req = h.request(request, async res => {
       res.status = res.statusCode
       if (!statusCodes.has(res.statusCode)) {
         return reject(new StatusError(res))
       }
       if (!encoding) return resolve(res)
       else {
-        res.pipe(bl((err, buff) => {
-          /* istanbul ignore if */
-          if (err) return reject(err)
-          /* We already guard against these
-             above so that we get an early error. */
-          /* istanbul ignore else */
-          if (encoding === 'buffer') {
-            resolve(buff)
-          } else if (encoding === 'json') {
-            let ret
-            try {
-              ret = JSON.parse(buff.toString())
-              resolve(ret)
-            } catch (e) {
-              e.message += `str"${buff.toString()}"`
-              reject(e)
-            }
-          } else if (encoding === 'string') {
-            resolve(buff.toString())
+        const buff = await getBuffer(res)
+        /* istanbul ignore else */
+        if (encoding === 'buffer') {
+          resolve(buff)
+        } else if (encoding === 'json') {
+          let ret
+          try {
+            ret = JSON.parse(buff.toString())
+            resolve(ret)
+          } catch (e) {
+            e.message += `str"${buff.toString()}"`
+            reject(e)
           }
-        }))
+        } else if (encoding === 'string') {
+          resolve(buff.toString())
+        }
       }
     })
     req.on('error', reject)
