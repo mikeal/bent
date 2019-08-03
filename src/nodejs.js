@@ -4,6 +4,7 @@ const https = require('https')
 const { URL } = require('url')
 const isStream = require('is-stream')
 const caseless = require('caseless')
+const bytes = require('bytesish')
 const bent = require('./core')
 
 class StatusError extends Error {
@@ -80,6 +81,9 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     })
     req.on('error', reject)
     if (body) {
+      if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+        body = bytes.native(body)
+      }
       if (Buffer.isBuffer(body) || typeof body === 'string') {
         req.end(body)
       } else if (isStream(body)) {
