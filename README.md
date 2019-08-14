@@ -28,7 +28,7 @@ const response = await post('cars/new', {name: 'bmw', wheels: 4});
 ```
 
 If you don't set a response encoding (`'json'`, `'string'` or `'buffer'`)
-then the response object will be returned after the statusCode check.
+then the *native* response object will be returned after the statusCode check.
 
 ```javascript
 const bent = require('bent')
