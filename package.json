@@ -5,7 +5,7 @@
   "main": "src/nodejs.js",
   "browser": "src/browser.js",
   "scripts": {
-    "test": "nyc --check-coverage --branches 100 --functions 100 --lines 100 aegir test -t node browser",
+    "test": "hundreds aegir test -t node browser",
     "pretest": "aegir lint"
   },
   "keywords": [],
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "aegir": "^20.0.0",
-    "nyc": "^14.1.1",
+    "hundreds": "0.0.0",
     "tsame": "^2.0.1"
   },
   "repository": {
