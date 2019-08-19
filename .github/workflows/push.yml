@@ -9,6 +9,7 @@ jobs:
     - name: Build
       uses: ianwalter/puppeteer@master
       with:
+        entrypoint: npm
         args: install
     - name: Test
       uses: ianwalter/puppeteer@master
