@@ -1,5 +1,7 @@
 # bent
 
+![2329](https://img.shields.io/badge/compiled%20bundle-2k-brightgreen) ![1089](https://img.shields.io/badge/gzipped%20bundle-1k-brightgreen)
+
 Functional HTTP client for Node.js w/ async/await.
 
 *Incredibly small browser version built on fetch w/ no external dependencies or polyfills.*
