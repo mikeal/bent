@@ -7,11 +7,11 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build
-    - uses: ianwalter/puppeteer@master
+      uses: ianwalter/puppeteer@master
       with:
         args: install
     - name: Test
-    - uses: ianwalter/puppeteer@master
+      uses: ianwalter/puppeteer@master
       with:
         entrypoint: npm
         args: test
