@@ -9,8 +9,9 @@ jobs:
     
     - name: Avoid Double Runs
       if: github.repository == 'mikeal/bent' && github.event_name == 'pull_request'
-      entrypoint: exit
-      args: 78
+      with: 
+        entrypoint: exit
+        args: 78
     
     - name: Build
       uses: ianwalter/puppeteer@master
