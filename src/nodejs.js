@@ -87,7 +87,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
       if (Buffer.isBuffer(body)) {
         // noop
       } else if (typeof body === 'string') {
-        body = Buffer.from(string)
+        body = Buffer.from(body)
       } else if (isStream(body)) {
         body.pipe(req)
         body = null
