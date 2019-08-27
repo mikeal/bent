@@ -11,8 +11,8 @@ jobs:
       uses: actions/checkout@master
       if: github.repository == 'mikeal/bent' && github.event_name == 'pull_request'
       with: 
-        entrypoint: exit
-        args: 78
+        entrypoint: sh
+        args: -c 'exit 78'
     
     - name: Build
       uses: ianwalter/puppeteer@master
