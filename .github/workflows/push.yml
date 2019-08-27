@@ -1,7 +1,4 @@
-on:
-  push:
-    branches:
-    - master
+on: [ push, pull_request ]
 name: Build and Publish
 jobs:
   build:
@@ -20,11 +17,14 @@ jobs:
         entrypoint: npm
         args: test
     - name: Publish
+      if: github.ref == 'master' && github.repository == 'mikeal/bent'
       uses: mikeal/merge-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - uses: mikeal/bundle-size-action@master
+      if: github.ref == 'master' && github.repository == 'mikeal/bent'
     - uses: mikeal/publish-to-github-action@master
+      if: github.ref == 'master' && github.repository == 'mikeal/bent'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
