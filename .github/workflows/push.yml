@@ -1,8 +1,5 @@
-on:
-  push:
-    branches:
-    - master
-name: Build and Publish
+on: [push, pull_request]
+name: Build, Test, and Publish if master
 jobs:
   build:
     name: Build
@@ -19,6 +16,10 @@ jobs:
       with:
         entrypoint: npm
         args: test
+    - name: Publish Filter
+      uses: actions/bin/filter@master
+      with:
+        args: branch master
     - name: Publish
       uses: mikeal/merge-release@master
       env:
