@@ -6,6 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    
+    - name: Avoid Double Runs
+      if: github.repository == 'mikeal/bent' && github.event_name == 'pull_request'
+      entrypoint: exit
+      args: 78
+    
     - name: Build
       uses: ianwalter/puppeteer@master
       with:
