@@ -8,6 +8,7 @@ jobs:
     - uses: actions/checkout@master
     
     - name: Avoid Double Runs
+      uses: actions/checkout@master
       if: github.repository == 'mikeal/bent' && github.event_name == 'pull_request'
       with: 
         entrypoint: exit
