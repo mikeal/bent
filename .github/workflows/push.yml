@@ -17,16 +17,15 @@ jobs:
       with:
         entrypoint: npm
         args: test
-    - name: Publish Filter
-      uses: actions/bin/filter@master
-      with:
-        args: branch master
     - name: Publish
+      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/bent'
       uses: mikeal/merge-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - uses: mikeal/bundle-size-action@master
+      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/bent'
     - uses: mikeal/publish-to-github-action@master
+      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/bent'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
