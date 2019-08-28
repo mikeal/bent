@@ -84,15 +84,22 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
       if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
         body = bytes.native(body)
       }
-      if (Buffer.isBuffer(body) || typeof body === 'string') {
-        req.end(body)
+      if (Buffer.isBuffer(body)) {
+        // noop
+      } else if (typeof body === 'string') {
+        body = Buffer.from(body)
       } else if (isStream(body)) {
         body.pipe(req)
+        body = null
       } else if (typeof body === 'object') {
         req.setHeader('content-type', 'application/json')
-        req.end(JSON.stringify(body))
+        body = Buffer.from(JSON.stringify(body))
       } else {
         reject(new Error('Unknown body type.'))
+      }
+      if (body) {
+        req.setHeader('content-length', body.length)
+        req.end(body)
       }
     } else {
       req.end()
