@@ -6,6 +6,35 @@ const isStream = require('is-stream')
 const caseless = require('caseless')
 const bytes = require('bytesish')
 const bent = require('./core')
+const zlib = require('zlib')
+const { PassThrough } = require('stream')
+
+const compression = {}
+
+/* istanbul ignore else */
+if (zlib.createBrotliDecompress) compression.br = () => zlib.createBrotliDecompress()
+/* istanbul ignore else */
+if (zlib.createGunzip) compression.gzip = () => zlib.createGunzip()
+/* istanbul ignore else */
+if (zlib.createInflate) compression.deflate = () => zlib.createInflate()
+
+const acceptEncoding = Object.keys(compression).join(', ')
+
+const getResponse = resp => {
+  const ret = new PassThrough()
+  ret.statusCode = resp.statusCode
+  ret.statusMessage = resp.statusMessage
+  ret.headers = resp.headers
+  ret._response = resp
+  if (ret.headers['content-encoding']) {
+    const encodings = ret.headers['content-encoding'].split(', ').reverse()
+    while (encodings.length) {
+      const enc = encodings.shift()
+      resp = resp.pipe(compression[enc]())
+    }
+  }
+  return resp.pipe(ret)
+}
 
 class StatusError extends Error {
   constructor (res, ...params) {
@@ -47,11 +76,14 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     headers: headers || {},
     hostname: parsed.hostname
   }
+  const c = caseless(request.headers)
   if (encoding === 'json') {
-    const c = caseless(request.headers)
     if (!c.get('accept')) {
       c.set('accept', 'application/json')
     }
+  }
+  if (!c.has('accept-encoding')) {
+    c.set('accept-encoding', acceptEncoding)
   }
   return new Promise((resolve, reject) => {
     const req = h.request(request, async res => {
@@ -59,6 +91,8 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
       if (!statusCodes.has(res.statusCode)) {
         return reject(new StatusError(res))
       }
+      res = getResponse(res)
+
       if (!encoding) return resolve(res)
       else {
         const buff = await getBuffer(res)
