@@ -6,7 +6,8 @@
   "browser": "src/browser.js",
   "scripts": {
     "test": "hundreds aegir test -t node browser",
-    "pretest": "aegir lint"
+    "pretest": "aegir lint",
+    "coverage": "nyc --reporter=html mocha test/*.spec.js && npx http-server coverage"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.mikealrogers.com)",

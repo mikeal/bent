@@ -11,9 +11,12 @@ const { PassThrough } = require('stream')
 
 const compression = {}
 
+/* istanbul ignore else */
 if (zlib.createBrotliDecompress) compression.br = () => zlib.createBrotliDecompress()
+/* istanbul ignore else */
 if (zlib.createGunzip) compression.gzip = () => zlib.createGunzip()
-if (zlib.createDeflate) compression.deflate = () => zlib.createDeflate()
+/* istanbul ignore else */
+if (zlib.createInflate) compression.deflate = () => zlib.createInflate()
 
 const acceptEncoding = Object.keys(compression).join(', ')
 
@@ -79,7 +82,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
       c.set('accept', 'application/json')
     }
   }
-  if (!c.has('acccept-encoding')) {
+  if (!c.has('accept-encoding')) {
     c.set('accept-encoding', acceptEncoding)
   }
   return new Promise((resolve, reject) => {
