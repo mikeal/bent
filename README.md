@@ -73,3 +73,13 @@ const bent = require('bent')
 const put = bent('PUT', 201)
 await put('http://site.com/upload', Buffer.from('test'))
 ```
+
+Or
+
+
+```javascript
+const bent = require('bent')
+
+const put = bent('PUT', 201, 'http://site.com')
+await put('/upload', Buffer.from('test'))
+```
