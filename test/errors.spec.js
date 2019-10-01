@@ -14,7 +14,7 @@ test('Invalid encoding', done => {
     bent('blah')
   } catch (e) {
     ttype(e, 'Error')
-    same(e.message, `Unknown encoding, blah`)
+    same(e.message, 'Unknown encoding, blah')
     done()
   }
 })
@@ -24,7 +24,7 @@ test('double method', done => {
     bent('GET', 'PUT')
   } catch (e) {
     ttype(e, 'Error')
-    same(e.message, `Can't set method to PUT, already set to GET.`)
+    same(e.message, 'Can\'t set method to PUT, already set to GET.')
     done()
   }
 })
@@ -46,7 +46,7 @@ test('unknown protocol', async () => {
     throw new Error('Should have already failed')
   } catch (e) {
     ttype(e, 'Error')
-    same(e.message, `Unknown protocol, ftp:`)
+    same(e.message, 'Unknown protocol, ftp:')
   }
 })
 
@@ -55,7 +55,7 @@ test('Invalid type', done => {
     bent(true)
   } catch (e) {
     ttype(e, 'Error')
-    same(e.message, `Unknown type: boolean`)
+    same(e.message, 'Unknown type: boolean')
     done()
   }
 })
