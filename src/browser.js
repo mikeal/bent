@@ -14,7 +14,7 @@ class StatusError extends Error {
   }
 }
 
-const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_url, body) => {
+const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_url, body, _headers = {}) => {
   _url = baseurl + _url
   const parsed = new URL(_url)
 
@@ -36,6 +36,9 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_u
       throw new Error('Unknown body type.')
     }
   }
+
+  if (headers) headers = Object.assign({}, headers, _headers);
+  else headers = _headers;
 
   const resp = await fetch(_url, { method, headers, body })
   resp.statusCode = resp.status

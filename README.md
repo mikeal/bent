@@ -60,12 +60,13 @@ The returned async function is used for subsequent requests.
 When working with Binary this library uses different types in the browser and Node.js. In Node.js all binary must be done
 the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer view type (UInt8Array, etc).
 
-### `async request(url[, body=null])`
+### `async request(url[, body=null, headers={}])`
 
 * **url**: Fully qualified URL to the remote resource, or in the case that a
   base URL is passed the remaining URL string.
 * **body**: Request body. Can be a string, a stream (node.js), a buffer (node.js),
   an ArrayBuffer (browser), or a JSON object.
+* **headers**: An object of any headers you need to set for just this request.
 
 ```javascript
 const bent = require('bent')

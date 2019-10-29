@@ -58,7 +58,7 @@ const getBuffer = stream => new Promise((resolve, reject) => {
   stream.on('data', d => parts.push(d))
 })
 
-const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null) => {
+const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
   _url = baseurl + _url
   const parsed = new URL(_url)
   let h
@@ -73,7 +73,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     path: parsed.pathname + parsed.search,
     port: parsed.port,
     method: method,
-    headers: headers || {},
+    headers: Object.assign({}, headers || {}, _headers),
     hostname: parsed.hostname
   }
   const c = caseless(request.headers)
