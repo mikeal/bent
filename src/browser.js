@@ -37,8 +37,8 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_u
     }
   }
 
-  if (headers) headers = Object.assign({}, headers, _headers);
-  else headers = _headers;
+  if (headers) headers = Object.assign({}, headers, _headers)
+  else headers = _headers
 
   const resp = await fetch(_url, { method, headers, body })
   resp.statusCode = resp.status
