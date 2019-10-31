@@ -73,7 +73,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     path: parsed.pathname + parsed.search,
     port: parsed.port,
     method: method,
-    headers: Object.assign({}, headers || {}, _headers),
+    headers: { ...(headers || {}), ..._headers },
     hostname: parsed.hostname
   }
   const c = caseless(request.headers)
