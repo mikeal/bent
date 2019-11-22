@@ -1,6 +1,6 @@
 # bent
 
-![2329](https://img.shields.io/badge/compiled%20bundle-2k-brightgreen) ![1089](https://img.shields.io/badge/gzipped%20bundle-1k-brightgreen)
+![2352](https://img.shields.io/badge/compiled%20bundle-2k-brightgreen) ![1103](https://img.shields.io/badge/gzipped%20bundle-1k-brightgreen)
 
 Functional HTTP client for Node.js and Browsers w/ async/await.
 
