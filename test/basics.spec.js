@@ -138,10 +138,19 @@ test('500 Response body', async () => {
   }
 })
 
-test('override headers', async () => {
-  const request = bent('json', { 'X-Default': 'ok', 'X-Override-Me': 'not overriden' })
-  const info = await request(u('/info.js'), null, { 'X-Override-Me': 'overriden', 'X-New': 'ok' })
-  same(info.headers['x-default'], 'ok')
-  same(info.headers['x-override-me'], 'overriden')
-  same(info.headers['x-new'], 'ok')
-})
+if (process.browser) {
+  test('override headers', async () => {
+    const request = bent('string', { Accept: 'application/json' })
+    let info = await request(u('/info.js'), null, { Accept: 'application/xml' })
+    info = JSON.parse(info)
+    same(info.headers.accept, 'application/xml')
+  })
+} else {
+  test('override headers', async () => {
+    const request = bent('json', { 'X-Default': 'ok', 'X-Override-Me': 'not overriden' })
+    const info = await request(u('/info.js'), null, { 'X-Override-Me': 'overriden', 'X-New': 'ok' })
+    same(info.headers['x-default'], 'ok')
+    same(info.headers['x-override-me'], 'overriden')
+    same(info.headers['x-new'], 'ok')
+  })
+}
