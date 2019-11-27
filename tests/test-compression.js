@@ -1,10 +1,10 @@
 'use strict'
+/* globals it */
 const bent = require('../')
 const assert = require('assert')
 const tsame = require('tsame')
 const qs = require('querystring')
 const zlib = require('zlib')
-const { it } = require('mocha')
 
 const test = it
 

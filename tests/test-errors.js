@@ -1,8 +1,8 @@
 'use strict'
+/* globals it */
 const bent = require('../')
 const tsame = require('tsame')
 const assert = require('assert')
-const { it } = require('mocha')
 
 const test = it
 const same = (x, y) => assert.ok(tsame(x, y))

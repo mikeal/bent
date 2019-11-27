@@ -5,9 +5,10 @@
   "main": "src/nodejs.js",
   "browser": "src/browser.js",
   "scripts": {
-    "test": "hundreds aegir test -t node browser",
-    "pretest": "aegir lint",
-    "coverage": "nyc --reporter=html mocha test/*.spec.js && npx http-server coverage"
+    "lint": "standard",
+    "test:node": "mocha tests/test-*.js",
+    "test:browser": "polendina --cleanup --service-worker --worker tests/test-*.js",
+    "test": "npm run lint && npm run test:node && npm run test:browser"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.mikealrogers.com)",
@@ -18,8 +19,10 @@
     "is-stream": "^2.0.0"
   },
   "devDependencies": {
-    "aegir": "^20.3.1",
     "hundreds": "0.0.2",
+    "mocha": "^6.2.2",
+    "polendina": "0.0.0",
+    "standard": "^14.3.1",
     "tsame": "^2.0.1"
   },
   "repository": {

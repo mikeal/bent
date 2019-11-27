@@ -1,10 +1,9 @@
-/* globals atob */
+/* globals atob, it */
 'use strict'
 const bent = require('../')
 const assert = require('assert')
 const tsame = require('tsame')
 const { PassThrough } = require('stream')
-const { it } = require('mocha')
 
 const test = it
 

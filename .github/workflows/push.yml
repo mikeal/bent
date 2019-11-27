@@ -1,31 +1,31 @@
 on: push
-name: Build, Test, and Publish if master
+name: Build and Publish
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-   
+    - name: Cache node_modules
+      id: cache-modules
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-build-${{ hashFiles('package.json') }}
     - name: Build
-      uses: ianwalter/puppeteer@master
-      with:
-        entrypoint: npm
-        args: install
+      if: steps.cache-modules.outputs.cache-hit != 'true'
+      run: npm install
     - name: Test
-      uses: ianwalter/puppeteer@master
-      with:
-        entrypoint: npm
-        args: test
+      run: npm test
     - name: Publish
-      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/bent'
+      if: github.ref == 'refs/heads/master'
       uses: mikeal/merge-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - uses: mikeal/bundle-size-action@master
-      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/bent'
+      if: github.ref == 'refs/heads/master'
     - uses: mikeal/publish-to-github-action@master
-      if: github.ref == 'refs/heads/master' && github.repository == 'mikeal/bent'
+      if: github.ref == 'refs/heads/master'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
