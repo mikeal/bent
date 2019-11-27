@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "standard",
     "test:node": "mocha tests/test-*.js",
-    "test:browser": "polendina --cleanup tests/test-*.js",
+    "test:browser": "polendina --cleanup --service-worker --worker tests/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:browser"
   },
   "keywords": [],
