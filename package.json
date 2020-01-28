@@ -6,8 +6,8 @@
   "browser": "src/browser.js",
   "scripts": {
     "lint": "standard",
-    "test:node": "hundreds mocha tests/test-*.js",
-    "test:browser": "polendina --cleanup --service-worker --worker tests/test-*.js",
+    "test:node": "hundreds mocha test/test-*.js",
+    "test:browser": "polendina --cleanup --service-worker --worker test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:browser"
   },
   "keywords": [],
