@@ -9,7 +9,7 @@ class StatusError extends Error {
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, StatusError)
     }
-    
+
     this.message = `Incorrect statusCode: ${res.status}`
     this.statusCode = res.status
     this.res = res
