@@ -6,7 +6,10 @@ class StatusError extends Error {
   constructor (res, ...params) {
     super(...params)
 
-    Error.captureStackTrace(this, StatusError)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, StatusError)
+    }
+    
     this.message = `Incorrect statusCode: ${res.status}`
     this.statusCode = res.status
     this.res = res
