@@ -59,7 +59,7 @@ const getBuffer = stream => new Promise((resolve, reject) => {
 })
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
-  _url = baseurl + _url
+  _url = baseurl + (_url || '')
   const parsed = new URL(_url)
   let h
   if (parsed.protocol === 'https:') {
@@ -75,6 +75,9 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     method: method,
     headers: { ...(headers || {}), ..._headers },
     hostname: parsed.hostname
+  }
+  if (parsed.username || parsed.password) {
+    request.auth = [parsed.username, parsed.password].join(':')
   }
   const c = caseless(request.headers)
   if (encoding === 'json') {

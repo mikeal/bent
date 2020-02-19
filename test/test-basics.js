@@ -137,6 +137,12 @@ test('500 Response body', async () => {
   }
 })
 
+test('auth', async () => {
+  const request = bent('https://test:pass@httpbin.org/basic-auth/test/pass', 'json')
+  const obj = await request()
+  same(obj, { authenticated: true, user: 'test' })
+})
+
 if (process.browser) {
   test('override headers', async () => {
     const request = bent('string', { Accept: 'application/json' })
