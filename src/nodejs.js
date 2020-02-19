@@ -59,7 +59,7 @@ const getBuffer = stream => new Promise((resolve, reject) => {
 })
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
-  _url = baseurl + _url
+  _url = baseurl + (_url || '')
   const parsed = new URL(_url)
   let h
   if (parsed.protocol === 'https:') {

@@ -1,5 +1,5 @@
 'use strict'
-/* global fetch */
+/* global fetch, btoa, Headers */
 const core = require('./core')
 
 class StatusError extends Error {
@@ -18,9 +18,14 @@ class StatusError extends Error {
 }
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_url, body, _headers = {}) => {
-  _url = baseurl + _url
-  const parsed = new URL(_url)
+  _url = baseurl + (_url || '')
+  let parsed = new URL(_url)
 
+  if (!headers) headers = {}
+  if (parsed.username) {
+    headers.Authorization = 'Basic ' + btoa(parsed.username + ':' + parsed.password)
+    parsed = new URL(parsed.protocol + '//' + parsed.host + parsed.pathname + parsed.search)
+  }
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
     throw new Error(`Unknown protocol, ${parsed.protocol}`)
   }
@@ -33,16 +38,15 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_u
       // noop
     } else if (typeof body === 'object') {
       body = JSON.stringify(body)
-      if (!headers) headers = {}
       headers['Content-Type'] = 'application/json'
     } else {
       throw new Error('Unknown body type.')
     }
   }
 
-  _headers = { ...(headers || {}), ..._headers }
+  _headers = new Headers({ ...(headers || {}), ..._headers })
 
-  const resp = await fetch(_url, { method, headers: _headers, body })
+  const resp = await fetch(parsed, { method, headers: _headers, body })
   resp.statusCode = resp.status
 
   if (!statusCodes.has(resp.status)) {
