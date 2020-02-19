@@ -76,6 +76,9 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     headers: { ...(headers || {}), ..._headers },
     hostname: parsed.hostname
   }
+  if (parsed.username || parsed.password) {
+    request.auth = [parsed.username, parsed.password].join(':')
+  }
   const c = caseless(request.headers)
   if (encoding === 'json') {
     if (!c.get('accept')) {
