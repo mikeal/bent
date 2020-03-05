@@ -30,7 +30,11 @@ const getResponse = resp => {
     const encodings = ret.headers['content-encoding'].split(', ').reverse()
     while (encodings.length) {
       const enc = encodings.shift()
-      resp = resp.pipe(compression[enc]())
+      if (compression[enc]) {
+        resp = resp.pipe(compression[enc]())
+      } else {
+        break
+      }
     }
   }
   return resp.pipe(ret)
