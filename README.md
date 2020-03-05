@@ -64,7 +64,7 @@ the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer vie
 
 * **url**: Fully qualified URL to the remote resource, or in the case that a
   base URL is passed the remaining URL string.
-* **body**: Request body. Can be a string, a stream (node.js), a buffer (node.js),
+* **body**: Request body. Can be a string, a stream (node.js), a buffer (node.js) (see note below),
   an ArrayBuffer (browser), or a JSON object.
 * **headers**: An object of any headers you need to set for just this request.
 
@@ -84,3 +84,11 @@ const bent = require('bent')
 const put = bent('PUT', 201, 'http://site.com')
 await put('/upload', Buffer.from('test'))
 ```
+
+**NOTE:** If the `body` is passed as an `object`, it will be treated
+as JSON, stringified and the `Content-Type` will be set to `application/json`
+unless already set.  A common requirement is to POST using `form-urlencoded`.
+This will require you to set the `Content-Type` header to
+`application/x-www-form-urlencoded` and to encode the body yourself,
+perhaps using
+[form-urlencoded](https://www.npmjs.com/package/form-urlencoded).
