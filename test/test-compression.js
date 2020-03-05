@@ -53,9 +53,7 @@ if (!process.browser) {
     const base64 = zlib.gzipSync('untouched').toString('base64')
     const headers = 'content-encoding:myown'
     const buffer = await request(`/echo.js?${qs.stringify({ base64, headers })}`)
-    console.log(buffer)
     const str = zlib.gunzipSync(buffer).toString('utf8')
-    console.log(str)
     same(str, 'untouched')
   })
 }
