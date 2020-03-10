@@ -41,17 +41,13 @@ const getResponse = resp => {
 }
 
 class StatusError extends Error {
-  constructor (res, ...params) {
+  constructor (res, body, ...params) {
     super(...params)
 
     Error.captureStackTrace(this, StatusError)
     this.message = `Incorrect statusCode: ${res.statusCode}`
     this.statusCode = res.statusCode
-    this.responseBody = new Promise((resolve) => {
-      const buffers = []
-      res.on('data', chunk => buffers.push(chunk))
-      res.on('end', () => resolve(Buffer.concat(buffers)))
-    })
+    this.responseBody = body
   }
 }
 
@@ -94,30 +90,32 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   }
   return new Promise((resolve, reject) => {
     const req = h.request(request, async res => {
+      let ret
+
       res.status = res.statusCode
-      if (!statusCodes.has(res.statusCode)) {
-        return reject(new StatusError(res))
-      }
       res = getResponse(res)
 
-      if (!encoding) return resolve(res)
-      else {
-        const buff = await getBuffer(res)
-        /* istanbul ignore else */
-        if (encoding === 'buffer') {
-          resolve(buff)
-        } else if (encoding === 'json') {
-          let ret
-          try {
-            ret = JSON.parse(buff.toString())
-            resolve(ret)
-          } catch (e) {
-            e.message += `str"${buff.toString()}"`
-            reject(e)
-          }
-        } else if (encoding === 'string') {
-          resolve(buff.toString())
+      const buff = await getBuffer(res)
+      /* istanbul ignore else */
+      if (encoding === 'buffer') {
+        ret = buff
+      } else if (encoding === 'json') {
+        try {
+          ret = JSON.parse(buff.toString())
+        } catch (e) {
+          e.message += `str"${buff.toString()}"`
+          reject(e)
         }
+      } else if (encoding === undefined || encoding === 'string') {
+        ret = buff.toString()
+      }
+
+      if (!statusCodes.has(res.statusCode)) {
+        reject(new StatusError(res, ret))
+      } else if (!encoding) {
+        resolve(res)
+      } else {
+        resolve(ret)
       }
     })
     req.on('error', reject)
