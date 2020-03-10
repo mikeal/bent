@@ -129,11 +129,12 @@ test('500 Response body', async () => {
   } catch (e) {
     body = e.responseBody
   }
-  const buffer = await body
+
   if (process.browser) {
+    const buffer = await body
     same(decode(buffer), 'ok')
   } else {
-    same(buffer.toString(), 'ok')
+    same(body, 'ok')
   }
 })
 
