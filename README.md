@@ -24,6 +24,7 @@ Bent takes options which constrain what is accepted by the client.
 Any response that falls outside the constraints will generate an error.
 
 You can provide these options in any order, and Bent will figure out which option is which by inspecting the option's type and content.
+
 ```javascript
 const post = bent('http://localhost:3000/', 'POST', 'json', 200);
 const response = await post('cars/new', {name: 'bmw', wheels: 4});
@@ -31,6 +32,14 @@ const response = await post('cars/new', {name: 'bmw', wheels: 4});
 
 If you don't set a response encoding (`'json'`, `'string'` or `'buffer'`)
 then the *native* response object will be returned after the statusCode check.
+It is possible to set different expected encoding types for both success
+and error responses.
+
+```javascript
+const bent = require('bent')
+
+const get = bent('http://site.com', { onSuccessEncode: 'json', onErrorEncode: 'string' })
+```
 
 ```javascript
 const bent = require('bent')
