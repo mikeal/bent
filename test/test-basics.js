@@ -4,6 +4,7 @@ const bent = require('../')
 const assert = require('assert')
 const tsame = require('tsame')
 const { PassThrough } = require('stream')
+const { getBuffer } = require('../src/common')
 
 const test = it
 
@@ -18,6 +19,12 @@ const decode = arr => (new TextDecoder('utf-8')).decode(arr)
 
 test('basic 200 ok', async () => {
   const request = bent('string')
+  const str = await request(u('/echo.js?body=ok'))
+  same(str, 'ok')
+})
+
+test('basic 200 ok encode object', async () => {
+  const request = bent({ onSuccessEncode: 'string' })
   const str = await request(u('/echo.js?body=ok'))
   same(str, 'ok')
 })
@@ -130,12 +137,36 @@ test('500 Response body', async () => {
     body = e.responseBody
   }
 
+  const buffer = await getBuffer(body)
   if (process.browser) {
-    const buffer = await body
     same(decode(buffer), 'ok')
   } else {
-    same(body, 'ok')
+    same(buffer.toString(), 'ok')
   }
+})
+
+test('500 Response body encode object', async () => {
+  const request = bent({ onErrorEncode: 'string' })
+  let body
+  try {
+    await request(u('/echo.js?statusCode=500&body=ok'))
+  } catch (e) {
+    body = e.responseBody
+  }
+
+  same(body, 'ok')
+})
+
+test('500 Response body encode object undefined', async () => {
+  const request = bent({ onSuccessEncode: 'string' })
+  let body
+  try {
+    await request(u('/echo.js?statusCode=500&body=ok'))
+  } catch (e) {
+    body = await getBuffer(e.responseBody)
+  }
+
+  same(body.toString(), 'ok')
 })
 
 test('auth', async () => {

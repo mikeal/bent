@@ -8,6 +8,7 @@ const bytes = require('bytesish')
 const bent = require('./core')
 const zlib = require('zlib')
 const { PassThrough } = require('stream')
+const { getBuffer, getEncoding } = require('./common')
 
 const compression = {}
 
@@ -47,21 +48,16 @@ class StatusError extends Error {
     Error.captureStackTrace(this, StatusError)
     this.message = `Incorrect statusCode: ${res.statusCode}`
     this.statusCode = res.statusCode
-    this.responseBody = body
+    this.responseBody = body || res
   }
 }
-
-const getBuffer = stream => new Promise((resolve, reject) => {
-  const parts = []
-  stream.on('error', reject)
-  stream.on('end', () => resolve(Buffer.concat(parts)))
-  stream.on('data', d => parts.push(d))
-})
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
   _url = baseurl + (_url || '')
   const parsed = new URL(_url)
   let h
+  let locEncode = getEncoding(encoding, false)
+
   if (parsed.protocol === 'https:') {
     h = https
   } else if (parsed.protocol === 'http:') {
@@ -80,7 +76,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     request.auth = [parsed.username, parsed.password].join(':')
   }
   const c = caseless(request.headers)
-  if (encoding === 'json') {
+  if (locEncode === 'json') {
     if (!c.get('accept')) {
       c.set('accept', 'application/json')
     }
@@ -90,30 +86,35 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   }
   return new Promise((resolve, reject) => {
     const req = h.request(request, async res => {
-      let ret
+      const isErr = !statusCodes.has(res.statusCode)
+      let ret = null
+
+      locEncode = getEncoding(encoding, isErr)
 
       res.status = res.statusCode
       res = getResponse(res)
 
+      // If the encoding type has not been specified, return the native response
+      if (!locEncode && !isErr) return resolve(res)
+      if (!locEncode && isErr) return reject(new StatusError(res))
+
       const buff = await getBuffer(res)
-      /* istanbul ignore else */
-      if (encoding === 'buffer') {
+
+      if (locEncode === 'buffer') {
         ret = buff
-      } else if (encoding === 'json') {
+      } else if (locEncode === 'json') {
         try {
           ret = JSON.parse(buff.toString())
         } catch (e) {
           e.message += `str"${buff.toString()}"`
           reject(e)
         }
-      } else if (encoding === undefined || encoding === 'string') {
+      } else if (locEncode === 'string') {
         ret = buff.toString()
       }
 
-      if (!statusCodes.has(res.statusCode)) {
+      if (isErr) {
         reject(new StatusError(res, ret))
-      } else if (!encoding) {
-        resolve(res)
       } else {
         resolve(ret)
       }

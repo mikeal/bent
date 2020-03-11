@@ -1,6 +1,16 @@
 'use strict'
 const encodings = new Set(['json', 'buffer', 'string'])
 
+const { stateEncode } = require('./common')
+
+const checkEncoding = (val, state) => {
+  if (val !== undefined && !encodings.has(val)) {
+    throw new Error(state !== undefined ? `Unknown encoding '${val}' in state '${state}'.` : `Unknown encoding, ${val}`)
+  }
+
+  return val
+}
+
 module.exports = mkrequest => (...args) => {
   const statusCodes = new Set()
   let method
@@ -20,19 +30,31 @@ module.exports = mkrequest => (...args) => {
       } else if (arg.startsWith('http:') || arg.startsWith('https:')) {
         baseurl = arg
       } else {
-        if (encodings.has(arg)) {
-          encoding = arg
+        if (encoding) {
+          throw new Error('Cannot set encoding twice.')
         } else {
-          throw new Error(`Unknown encoding, ${arg}`)
+          encoding = checkEncoding(arg)
         }
       }
     } else if (typeof arg === 'number') {
       statusCodes.add(arg)
     } else if (typeof arg === 'object') {
-      if (headers) {
-        throw new Error('Cannot set headers twice.')
+      if (arg[stateEncode[0]] !== undefined || arg[stateEncode[1]] !== undefined) {
+        if (encoding) {
+          throw new Error('Cannot set encoding twice.')
+        }
+
+        stateEncode.forEach(st => {
+          checkEncoding(arg[st], st)
+        })
+
+        encoding = arg
+      } else {
+        if (headers) {
+          throw new Error('Cannot set headers twice.')
+        }
+        headers = arg
       }
-      headers = arg
     } else {
       throw new Error(`Unknown type: ${typeof arg}`)
     }
