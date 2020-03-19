@@ -5,6 +5,8 @@ const assert = require('assert')
 const tsame = require('tsame')
 const { PassThrough } = require('stream')
 
+const http = require('http')
+
 const test = it
 
 const same = (x, y) => assert.ok(tsame(x, y))
@@ -54,6 +56,23 @@ test('json based media type', async () => {
   const request = bent('json', { accept: 'application/vnd.something.com' })
   const json = await request(u('/info.js'))
   same(json.headers.accept, 'application/vnd.something.com')
+})
+
+test('manually-set content-type header when body is present', async () => {
+  const server = http.createServer((request, response) => {
+    response.statusCode = request.headers['content-type'] === 'application/jose+json' ? 200 : 400
+    response.end()
+  })
+  await new Promise((resolve, reject) => {
+    server.listen(9999, () => {
+      resolve()
+    })
+  })
+  const request = bent('POST')
+  const response = request('http://localhost:9999', { ok: true }, { 'content-type': 'application/jose+json' })
+  const info = await response
+  same(info.statusCode, 200)
+  server.close()
 })
 
 test('basic PUT', async () => {
