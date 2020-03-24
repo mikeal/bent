@@ -178,3 +178,14 @@ if (process.browser) {
     server.close()
   })
 }
+
+test('error headers', async () => {
+  const request = bent(200)
+  let headers
+  try {
+    await request(u('/echo.js?statusCode=500&body=ok'))
+  } catch (e) {
+    headers = e.headers
+  }
+  same(headers !== 'undefined', true)
+})
