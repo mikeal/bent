@@ -14,6 +14,7 @@ class StatusError extends Error {
     this.statusCode = res.status
     this.res = res
     this.responseBody = res.arrayBuffer()
+    this.responseHeaders = {}
   }
 }
 

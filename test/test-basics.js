@@ -94,6 +94,7 @@ test('status 201', async () => {
     throw new Error('Call should have thrown.')
   } catch (e) {
     same(e.message, 'Incorrect statusCode: 200')
+    assert.ok(Object.prototype.toString.call(e.responseHeaders) === '[object Object]')
   }
 })
 
