@@ -51,6 +51,7 @@ class StatusError extends Error {
     this.json = res.json
     this.text = res.text
     this.arrayBuffer = res.arrayBuffer
+    this.headers = res.headers
     let buffer
     const get = () => {
       if (!buffer) buffer = this.arrayBuffer()

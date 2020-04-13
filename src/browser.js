@@ -22,6 +22,11 @@ class StatusError extends Error {
       return buffer
     }
     Object.defineProperty(this, 'responseBody', { get })
+    // match Node.js headers object
+    this.headers = {}
+    for (const [key, value] of res.headers.entries()) {
+      this.headers[key.toLowerCase()] = value
+    }
   }
 }
 

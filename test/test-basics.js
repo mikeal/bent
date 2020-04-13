@@ -115,6 +115,8 @@ test('status 201', async () => {
     throw new Error('Call should have thrown.')
   } catch (e) {
     same(e.message, 'Incorrect statusCode: 200')
+    // basic header test
+    same(e.headers['content-length'], '2')
   }
 })
 
