@@ -23,6 +23,7 @@ const acceptEncoding = Object.keys(compression).join(', ')
 const getResponse = resp => {
   const ret = new PassThrough()
   ret.statusCode = resp.statusCode
+  ret.status = resp.statusCode
   ret.statusMessage = resp.statusMessage
   ret.headers = resp.headers
   ret._response = resp
@@ -120,13 +121,12 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   }
   return new Promise((resolve, reject) => {
     const req = h.request(request, async res => {
-      res.status = res.statusCode
-      if (!statusCodes.has(res.statusCode)) {
-        decodings(res)
-        return reject(new StatusError(res))
-      }
       res = getResponse(res)
       decodings(res)
+      res.status = res.statusCode
+      if (!statusCodes.has(res.statusCode)) {
+        return reject(new StatusError(res))
+      }
 
       if (!encoding) return resolve(res)
       else {
