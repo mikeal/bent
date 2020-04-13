@@ -32,12 +32,22 @@ const response = await post('cars/new', {name: 'bmw', wheels: 4});
 If you don't set a response encoding (`'json'`, `'string'` or `'buffer'`)
 then the *native* response object will be returned after the statusCode check.
 
+In Node.js, we also add decoding methods that match the Fetch API (`.json()`,
+`.text()` and `.arrayBuffer()`).
+
 ```javascript
 const bent = require('bent')
 
 const getStream = bent('http://site.com')
 
 let stream = await getStream('/json.api')
+// status code
+stream.status // 200
+stream.statusCode // 200
+// optionally decode
+const obj = await stream.json()
+// or
+const str = await stream.text()
 ```
 
 The following options are available.

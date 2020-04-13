@@ -46,6 +46,27 @@ test('basic buffer', async () => {
   }
 })
 
+test('double buffer decode', async () => {
+  const request = bent()
+  const resp = await request(u('/echo.js?body=ok'))
+  const validate = buff => {
+    if (buff instanceof ArrayBuffer) {
+      same(buff, enc('ok'))
+    } else {
+      same(buff, Buffer.from('ok'))
+    }
+  }
+  validate(await resp.arrayBuffer())
+  let threw = true
+  try {
+    await resp.arrayBuffer()
+    threw = false
+  } catch (e) {
+    if (!e.message.includes('body stream is locked')) throw e
+  }
+  assert.ok(threw)
+})
+
 test('basic json', async () => {
   const request = bent('json')
   const json = await request(u('/info.js'))
@@ -126,17 +147,23 @@ test('PUT JSON', async () => {
 test('500 Response body', async () => {
   const request = bent()
   let body
+  let _e
   try {
     await request(u('/echo.js?statusCode=500&body=ok'))
   } catch (e) {
+    _e = e
     body = e.responseBody
   }
-  const buffer = await body
-  if (process.browser) {
-    same(decode(buffer), 'ok')
-  } else {
-    same(buffer.toString(), 'ok')
+  const validate = buffer => {
+    if (process.browser) {
+      same(decode(buffer), 'ok')
+    } else {
+      same(buffer.toString(), 'ok')
+    }
   }
+  validate(await body)
+  // should be able to access again
+  validate(await _e.responseBody)
 })
 
 test('auth', async () => {
