@@ -13,7 +13,15 @@ class StatusError extends Error {
     this.message = `Incorrect statusCode: ${res.status}`
     this.statusCode = res.status
     this.res = res
-    this.responseBody = res.arrayBuffer()
+    this.json = res.json.bind(res)
+    this.text = res.text.bind(res)
+    this.arrayBuffer = res.arrayBuffer.bind(res)
+    let buffer
+    const get = () => {
+      if (!buffer) buffer = this.arrayBuffer()
+      return buffer
+    }
+    Object.defineProperty(this, 'responseBody', { get })
   }
 }
 

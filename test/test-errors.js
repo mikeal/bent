@@ -80,3 +80,21 @@ test('Invalid json', async () => {
     assert.ok(e.message.startsWith('Unexpected token a in JSON'))
   }
 })
+
+const getError = async () => {
+  const r = bent(201)
+  try {
+    await r('https://echo-server.mikeal.now.sh/src/echo.js?body="asdf"')
+    throw new Error('Should have failed')
+  } catch (e) {
+    ttype(e, 'StatusError')
+    return e
+  }
+}
+
+test('error decodings', async () => {
+  let e = await getError()
+  same(await e.text(), '"asdf"')
+  e = await getError()
+  same(await e.json(), 'asdf')
+})

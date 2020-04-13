@@ -47,11 +47,15 @@ class StatusError extends Error {
     Error.captureStackTrace(this, StatusError)
     this.message = `Incorrect statusCode: ${res.statusCode}`
     this.statusCode = res.statusCode
-    this.responseBody = new Promise((resolve) => {
-      const buffers = []
-      res.on('data', chunk => buffers.push(chunk))
-      res.on('end', () => resolve(Buffer.concat(buffers)))
-    })
+    this.json = res.json
+    this.text = res.text
+    this.arrayBuffer = res.arrayBuffer
+    let buffer
+    const get = () => {
+      if (!buffer) buffer = this.arrayBuffer()
+      return buffer
+    }
+    Object.defineProperty(this, 'responseBody', { get })
   }
 }
 
@@ -61,6 +65,28 @@ const getBuffer = stream => new Promise((resolve, reject) => {
   stream.on('end', () => resolve(Buffer.concat(parts)))
   stream.on('data', d => parts.push(d))
 })
+
+const decodings = res => {
+  let _buffer
+  res.arrayBuffer = () => {
+    if (!_buffer) {
+      _buffer = getBuffer(res)
+      return _buffer
+    } else {
+      throw new Error('body stream is locked')
+    }
+  }
+  res.text = () => res.arrayBuffer().then(buff => buff.toString())
+  res.json = async () => {
+    const str = await res.text()
+    try {
+      return JSON.parse(str)
+    } catch (e) {
+      e.message += `str"${str}"`
+      throw e
+    }
+  }
+}
 
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
   _url = baseurl + (_url || '')
@@ -96,27 +122,21 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     const req = h.request(request, async res => {
       res.status = res.statusCode
       if (!statusCodes.has(res.statusCode)) {
+        decodings(res)
         return reject(new StatusError(res))
       }
       res = getResponse(res)
+      decodings(res)
 
       if (!encoding) return resolve(res)
       else {
-        const buff = await getBuffer(res)
         /* istanbul ignore else */
         if (encoding === 'buffer') {
-          resolve(buff)
+          resolve(res.arrayBuffer())
         } else if (encoding === 'json') {
-          let ret
-          try {
-            ret = JSON.parse(buff.toString())
-            resolve(ret)
-          } catch (e) {
-            e.message += `str"${buff.toString()}"`
-            reject(e)
-          }
+          resolve(res.json())
         } else if (encoding === 'string') {
-          resolve(buff.toString())
+          resolve(res.text())
         }
       }
     })
