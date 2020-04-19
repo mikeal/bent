@@ -7,6 +7,7 @@ module.exports = mkrequest => (...args) => {
   let encoding
   let headers
   let baseurl = ''
+  let agent
 
   args.forEach(arg => {
     if (typeof arg === 'string') {
@@ -29,10 +30,13 @@ module.exports = mkrequest => (...args) => {
     } else if (typeof arg === 'number') {
       statusCodes.add(arg)
     } else if (typeof arg === 'object') {
-      if (headers) {
+      if (arg.constructor.name !== 'Object') {
+        agent = arg
+      } else if (headers) {
         throw new Error('Cannot set headers twice.')
+      } else {
+        headers = arg
       }
-      headers = arg
     } else {
       throw new Error(`Unknown type: ${typeof arg}`)
     }
@@ -43,5 +47,5 @@ module.exports = mkrequest => (...args) => {
     statusCodes.add(200)
   }
 
-  return mkrequest(statusCodes, method, encoding, headers, baseurl)
+  return mkrequest(statusCodes, method, encoding, headers, baseurl, agent)
 }

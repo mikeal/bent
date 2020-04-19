@@ -64,6 +64,13 @@ The following options are available.
 * **Base URL**: Any string that begins with 'https:' or 'http:' is
   considered the Base URL. Subsequent queries need only pass the remaining
   URL string.
+* **Agent**: _(nodejs only)_ An object representing an
+  [http.Agent](https://nodejs.org/api/http.html#http_class_http_agent)
+  may be passed.  It will be used instead of the default
+  [http.globalAgent](https://nodejs.org/api/http.html#http_class_http_agent)
+  that is generally used.  See the section below on proxying.  Obviously an
+  [https.Agent](https://nodejs.org/api/https.html#https_class_https_agent)
+  may be used for https: connections.
 
 The returned async function is used for subsequent requests.
 
@@ -92,10 +99,35 @@ Or
 const bent = require('bent')
 
 const put = bent('PUT', 201, 'http://site.com')
-await put('/upload', Buffer.from('test'))
+await put('/upload', Buffer.from('test')) 
 ```
 
-**NOTE:** If the `body` is passed as an `object`, it will be treated
+### Proxying
+
+bent does not, of itself, handle http proxies.  However it is possible to
+pass in an `http.Agent` object to the nodejs version
+which can proxy on bent's behalf.
+
+[node-tunnel](https://www.npmjs.com/package/tunnel) seems to work well
+and has been tested with bent, proxying to [Charles](https://www.charlesproxy.com/)
+on the local machine.  It can be set up as follows:
+
+```javascript
+const bent = require('bent')
+const tunnel = require('tunnel')
+const agent = tunnel.httpsOverHttp({
+  proxy: {
+    port: 8888
+    },
+  ca: fs.readFileSync('<path to charles-proxy-ssl-proxying-certificate.pem>')
+})
+const get = bent('GET', 'http://site.com', agent)
+await get('/myfile.txt')
+```
+
+### NOTE
+
+If the `body` is passed as an `object`, it will be treated
 as JSON, stringified and the `Content-Type` will be set to `application/json`
 unless already set.  A common requirement is to POST using `form-urlencoded`.
 This will require you to set the `Content-Type` header to
