@@ -5,6 +5,8 @@ const assert = require('assert')
 const tsame = require('tsame')
 const { PassThrough } = require('stream')
 
+const http = require('http')
+
 const test = it
 
 const same = (x, y) => assert.ok(tsame(x, y))
@@ -42,6 +44,27 @@ test('basic buffer', async () => {
   } else {
     same(buff, Buffer.from('ok'))
   }
+})
+
+test('double buffer decode', async () => {
+  const request = bent()
+  const resp = await request(u('/echo.js?body=ok'))
+  const validate = buff => {
+    if (buff instanceof ArrayBuffer) {
+      same(buff, enc('ok'))
+    } else {
+      same(buff, Buffer.from('ok'))
+    }
+  }
+  validate(await resp.arrayBuffer())
+  let threw = true
+  try {
+    await resp.arrayBuffer()
+    threw = false
+  } catch (e) {
+    if (!e.message.includes('body stream is locked')) throw e
+  }
+  assert.ok(threw)
 })
 
 test('basic json', async () => {
@@ -92,6 +115,8 @@ test('status 201', async () => {
     throw new Error('Call should have thrown.')
   } catch (e) {
     same(e.message, 'Incorrect statusCode: 200')
+    // basic header test
+    same(e.headers['content-length'], '2')
   }
 })
 
@@ -124,17 +149,23 @@ test('PUT JSON', async () => {
 test('500 Response body', async () => {
   const request = bent()
   let body
+  let _e
   try {
     await request(u('/echo.js?statusCode=500&body=ok'))
   } catch (e) {
+    _e = e
     body = e.responseBody
   }
-  const buffer = await body
-  if (process.browser) {
-    same(decode(buffer), 'ok')
-  } else {
-    same(buffer.toString(), 'ok')
+  const validate = buffer => {
+    if (process.browser) {
+      same(decode(buffer), 'ok')
+    } else {
+      same(buffer.toString(), 'ok')
+    }
   }
+  validate(await body)
+  // should be able to access again
+  validate(await _e.responseBody)
 })
 
 test('auth', async () => {
@@ -157,5 +188,22 @@ if (process.browser) {
     same(info.headers['x-default'], 'ok')
     same(info.headers['x-override-me'], 'overriden')
     same(info.headers['x-new'], 'ok')
+  })
+
+  test('manually-set content-type header when body is present', async () => {
+    const server = http.createServer((request, response) => {
+      response.statusCode = request.headers['content-type'] === 'application/jose+json' ? 200 : 400
+      response.end()
+    })
+    await new Promise((resolve, reject) => {
+      server.listen(9999, () => {
+        resolve()
+      })
+    })
+    const request = bent('POST')
+    const response = request('http://localhost:9999', { ok: true }, { 'content-type': 'application/jose+json' })
+    const info = await response
+    same(info.statusCode, 200)
+    server.close()
   })
 }
