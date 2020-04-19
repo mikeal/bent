@@ -106,7 +106,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl, agent) => (_
     port: parsed.port,
     method: method,
     headers: { ...(headers || {}), ..._headers },
-    hostname: parsed.hostname,
+    hostname: parsed.hostname
   }
   if (agent != null) {
     request.agent = agent
