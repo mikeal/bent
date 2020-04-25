@@ -90,85 +90,114 @@ const decodings = res => {
   }
 }
 
-const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
-  _url = baseurl + (_url || '')
-  const parsed = new URL(_url)
-  let h
-  if (parsed.protocol === 'https:') {
-    h = https
-  } else if (parsed.protocol === 'http:') {
-    h = http
-  } else {
-    throw new Error(`Unknown protocol, ${parsed.protocol}`)
-  }
-  const request = {
-    path: parsed.pathname + parsed.search,
-    port: parsed.port,
-    method: method,
-    headers: { ...(headers || {}), ..._headers },
-    hostname: parsed.hostname
-  }
-  if (parsed.username || parsed.password) {
-    request.auth = [parsed.username, parsed.password].join(':')
-  }
-  const c = caseless(request.headers)
-  if (encoding === 'json') {
-    if (!c.get('accept')) {
-      c.set('accept', 'application/json')
-    }
-  }
-  if (!c.has('accept-encoding')) {
-    c.set('accept-encoding', acceptEncoding)
-  }
-  return new Promise((resolve, reject) => {
-    const req = h.request(request, async res => {
-      res = getResponse(res)
-      decodings(res)
-      res.status = res.statusCode
-      if (!statusCodes.has(res.statusCode)) {
-        return reject(new StatusError(res))
-      }
+const redirCodes = new Set([301, 302, 303, 307, 308])
 
-      if (!encoding) return resolve(res)
-      else {
-        /* istanbul ignore else */
-        if (encoding === 'buffer') {
-          resolve(res.arrayBuffer())
-        } else if (encoding === 'json') {
-          resolve(res.json())
-        } else if (encoding === 'string') {
-          resolve(res.text())
+const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
+  const rep = (_url, body = null, _headers = {}, redirLength = 0) => {
+    if (redirLength === 20) {
+      throw new Error("Max redirects exceeded")
+    }
+
+    _url = baseurl + (_url || '')
+    const parsed = new URL(_url)
+    let h
+    if (parsed.protocol === 'https:') {
+      h = https
+    } else if (parsed.protocol === 'http:') {
+      h = http
+    } else {
+      throw new Error(`Unknown protocol, ${parsed.protocol}`)
+    }
+    const request = {
+      path: parsed.pathname + parsed.search,
+      port: parsed.port,
+      method: method,
+      headers: { ...(headers || {}), ..._headers },
+      hostname: parsed.hostname
+    }
+    if (parsed.username || parsed.password) {
+      request.auth = [parsed.username, parsed.password].join(':')
+    }
+    const c = caseless(request.headers)
+    if (encoding === 'json') {
+      if (!c.get('accept')) {
+        c.set('accept', 'application/json')
+      }
+    }
+    if (!c.has('accept-encoding')) {
+      c.set('accept-encoding', acceptEncoding)
+    }
+    return new Promise((resolve, reject) => {
+      const req = h.request(request, async res => {
+        res = getResponse(res)
+        decodings(res)
+        res.status = res.statusCode
+        if (!statusCodes.has(res.statusCode)) {
+          if (rep.redirect === "follow" && redirCodes.has(res.statusCode)) {
+            if (res.headers.location) {
+              let next = null
+              try {
+                next = new URL(res.headers.location)
+              } catch (err) {
+                try {
+                  next = new URL(parsed.origin + res.headers.location)
+                } catch (err) {
+                  return reject(new Error("Redirect with invalid Location header"))
+                }
+              }
+
+              return rep(next.href, body, _headers, redirLength + 1)
+            } else {
+              return reject(new Error("Redirect without Location header"))
+            }
+          } else {
+            return reject(new StatusError(res))
+          }
         }
+  
+        if (!encoding) return resolve(res)
+        else {
+          /* istanbul ignore else */
+          if (encoding === 'buffer') {
+            resolve(res.arrayBuffer())
+          } else if (encoding === 'json') {
+            resolve(res.json())
+          } else if (encoding === 'string') {
+            resolve(res.text())
+          }
+        }
+      })
+      req.on('error', reject)
+      if (body) {
+        if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+          body = bytes.native(body)
+        }
+        if (Buffer.isBuffer(body)) {
+          // noop
+        } else if (typeof body === 'string') {
+          body = Buffer.from(body)
+        } else if (isStream(body)) {
+          body.pipe(req)
+          body = null
+        } else if (typeof body === 'object') {
+          if (!c.has('content-type')) {
+            req.setHeader('content-type', 'application/json')
+          }
+          body = Buffer.from(JSON.stringify(body))
+        } else {
+          reject(new Error('Unknown body type.'))
+        }
+        if (body) {
+          req.setHeader('content-length', body.length)
+          req.end(body)
+        }
+      } else {
+        req.end()
       }
     })
-    req.on('error', reject)
-    if (body) {
-      if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
-        body = bytes.native(body)
-      }
-      if (Buffer.isBuffer(body)) {
-        // noop
-      } else if (typeof body === 'string') {
-        body = Buffer.from(body)
-      } else if (isStream(body)) {
-        body.pipe(req)
-        body = null
-      } else if (typeof body === 'object') {
-        if (!c.has('content-type')) {
-          req.setHeader('content-type', 'application/json')
-        }
-        body = Buffer.from(JSON.stringify(body))
-      } else {
-        reject(new Error('Unknown body type.'))
-      }
-      if (body) {
-        req.setHeader('content-length', body.length)
-        req.end(body)
-      }
-    } else {
-      req.end()
-    }
-  })
+  }
+
+  return rep
 }
 
 module.exports = bent(mkrequest)
