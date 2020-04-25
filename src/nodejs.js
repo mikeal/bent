@@ -95,7 +95,7 @@ const redirCodes = new Set([301, 302, 303, 307, 308])
 const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
   const rep = (_url, body = null, _headers = {}, redirLength = 0) => {
     if (redirLength === 20) {
-      throw new Error("Max redirects exceeded")
+      throw new Error('Max redirects exceeded')
     }
 
     _url = baseurl + (_url || '')
@@ -133,7 +133,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
         decodings(res)
         res.status = res.statusCode
         if (!statusCodes.has(res.statusCode)) {
-          if (rep.redirect === "follow" && redirCodes.has(res.statusCode)) {
+          if (rep.redirect === 'follow' && redirCodes.has(res.statusCode)) {
             if (res.headers.location) {
               let next = null
               try {
@@ -142,19 +142,19 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
                 try {
                   next = new URL(parsed.origin + res.headers.location)
                 } catch (err) {
-                  return reject(new Error("Redirect with invalid Location header"))
+                  return reject(new Error('Redirect with invalid Location header'))
                 }
               }
 
               return rep(next.href, body, _headers, redirLength + 1)
             } else {
-              return reject(new Error("Redirect without Location header"))
+              return reject(new Error('Redirect without Location header'))
             }
           } else {
             return reject(new StatusError(res))
           }
         }
-  
+
         if (!encoding) return resolve(res)
         else {
           /* istanbul ignore else */

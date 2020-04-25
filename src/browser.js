@@ -34,7 +34,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
   const rep = async (_url, body, _headers = {}) => {
     _url = baseurl + (_url || '')
     let parsed = new URL(_url)
-  
+
     if (!headers) headers = {}
     if (parsed.username) {
       headers.Authorization = 'Basic ' + btoa(parsed.username + ':' + parsed.password)
@@ -43,7 +43,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
     if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
       throw new Error(`Unknown protocol, ${parsed.protocol}`)
     }
-  
+
     if (body) {
       if (body instanceof ArrayBuffer ||
         ArrayBuffer.isView(body) ||
@@ -57,7 +57,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
         throw new Error('Unknown body type.')
       }
     }
-  
+
     _headers = new Headers({ ...(headers || {}), ..._headers })
 
     const opts = { method, headers: _headers, body }
@@ -67,11 +67,11 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
 
     const resp = await fetch(parsed, opts)
     resp.statusCode = resp.status
-  
+
     if (!statusCodes.has(resp.status)) {
       throw new StatusError(resp)
     }
-  
+
     if (encoding === 'json') return resp.json()
     else if (encoding === 'buffer') return resp.arrayBuffer()
     else if (encoding === 'string') return resp.text()
