@@ -125,6 +125,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   return new Promise((resolve, reject) => {
     const req = h.request(request, async res => {
       res = getResponse(res)
+      res.on('error', reject)
       decodings(res)
       res.status = res.statusCode
       if (!statusCodes.has(res.statusCode)) {
