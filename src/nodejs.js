@@ -32,7 +32,9 @@ const getResponse = resp => {
     while (encodings.length) {
       const enc = encodings.shift()
       if (compression[enc]) {
-        resp = resp.pipe(compression[enc]())
+        const decompress = compression[enc]()
+        decompress.on('error', (e) => ret.emit('error', e))
+        resp = resp.pipe(decompress)
       } else {
         break
       }
