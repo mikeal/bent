@@ -3,11 +3,12 @@
 const bent = require('../')
 const tsame = require('tsame')
 const assert = require('assert')
+const zlib = require('zlib')
+const ttype = (e, str) => same(e.constructor.name, str)
+const qs = require('querystring')
 
 const test = it
 const same = (x, y) => assert.ok(tsame(x, y))
-
-const ttype = (e, str) => same(e.constructor.name, str)
 
 test('Invalid encoding', done => {
   try {
@@ -98,3 +99,26 @@ test('error decodings', async () => {
   e = await getError()
   same(await e.json(), 'asdf')
 })
+
+if (!process.browser) {
+  test('Z_BUF_ERROR error', async () => {
+    const request = bent('json')
+    try {
+      await request('https://echo-server.mikeal.now.sh/src/echo.js?headers=content-encoding%3Agzip%2Ccontent-type%3Aapplication%2Fjson')
+    } catch (e) {
+      ttype(e, 'Error')
+      return e
+    }
+  })
+  test('gzip json compresssion SyntaxError', async () => {
+    const request = bent('json')
+    const base64 = zlib.gzipSync('ok').toString('base64')
+    const headers = 'content-encoding:gzip,content-type:application/json'
+    try {
+      await request(`https://echo-server.mikeal.now.sh/src/echo.js?${qs.stringify({ base64, headers })}`)
+    } catch (e) {
+      ttype(e, 'SyntaxError')
+      return e
+    }
+  })
+}

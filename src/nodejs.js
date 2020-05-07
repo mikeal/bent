@@ -33,7 +33,7 @@ const getResponse = resp => {
       const enc = encodings.shift()
       if (compression[enc]) {
         const decompress = compression[enc]()
-        decompress.on('error', (e) => ret.emit('error', e))
+        decompress.on('error', (e) => ret.emit('error', new Error('ZBufError', e)))
         resp = resp.pipe(decompress)
       } else {
         break
