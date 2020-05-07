@@ -32,7 +32,9 @@ const getResponse = resp => {
     while (encodings.length) {
       const enc = encodings.shift()
       if (compression[enc]) {
-        resp = resp.pipe(compression[enc]())
+        const decompress = compression[enc]()
+        decompress.on('error', (e) => ret.emit('error', new Error('ZBufError', e)))
+        resp = resp.pipe(decompress)
       } else {
         break
       }
@@ -123,6 +125,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
   return new Promise((resolve, reject) => {
     const req = h.request(request, async res => {
       res = getResponse(res)
+      res.on('error', reject)
       decodings(res)
       res.status = res.statusCode
       if (!statusCodes.has(res.statusCode)) {
