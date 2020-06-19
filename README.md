@@ -68,7 +68,7 @@ The following options are available.
 The returned async function is used for subsequent requests.
 
 When working with Binary this library uses different types in the browser and Node.js. In Node.js all binary must be done
-the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer view type (UInt8Array, etc).
+using the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer view type (UInt8Array, etc).
 
 ### `async request(url[, body=null, headers={}])`
 
