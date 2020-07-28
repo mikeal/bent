@@ -105,37 +105,20 @@ test('base PUT string', async () => {
   }
 })
 
-if (process.browser) {
-  test('status 201', async () => {
-    const request = bent('string', 201)
-    const str = await request(u('/echo.js?statusCode=201&body=ok'))
-    same(str, 'ok')
+test('status 201', async () => {
+  const request = bent('string', 201)
+  const str = await request(u('/echo.js?statusCode=201&body=ok'))
+  same(str, 'ok')
 
-    try {
-      await request(u('/echo.js?body=ok'))
-      throw new Error('Call should have thrown.')
-    } catch (e) {
-      same(e.message, null)
-      // basic header test
-      same(e.headers['content-length'], '2')
-    }
-  })
-} else {
-  test('status 201', async () => {
-    const request = bent('string', 201)
-    const str = await request(u('/echo.js?statusCode=201&body=ok'))
-    same(str, 'ok')
-
-    try {
-      await request(u('/echo.js?body=ok'))
-      throw new Error('Call should have thrown.')
-    } catch (e) {
-      same(e.message, 'OK')
-      // basic header test
-      same(e.headers['content-length'], '2')
-    }
-  })
-}
+  try {
+    await request(u('/echo.js?body=ok'))
+    throw new Error('Call should have thrown.')
+  } catch (e) {
+    same(e.message, process.browser ? null : 'OK')
+    // basic header test
+    same(e.headers['content-length'], '2')
+  }
+})
 
 test('PUT stream', async () => {
   const body = Buffer.from(Math.random().toString())
