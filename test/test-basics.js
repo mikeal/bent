@@ -149,7 +149,7 @@ test('multiple status', async () => {
     await request(u('/echo.js?statusCode=202&body=ok'))
     throw new Error('Call should have thrown.')
   } catch (e) {
-    same(e.message, process.browser ? null : 'OK')
+    same(e.message, process.browser ? null : 'Accepted')
     // basic header test
     same(e.headers['content-length'], '2')
   }
