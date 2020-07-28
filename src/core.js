@@ -29,10 +29,14 @@ module.exports = mkrequest => (...args) => {
     } else if (typeof arg === 'number') {
       statusCodes.add(arg)
     } else if (typeof arg === 'object') {
-      if (headers) {
-        throw new Error('Cannot set headers twice.')
+      if (Array.isArray(arg) || arg instanceof Set) {
+        arg.forEach(code => statusCodes.add(code))
+      } else {
+        if (headers) {
+          throw new Error('Cannot set headers twice.')
+        }
+        headers = arg
       }
-      headers = arg
     } else {
       throw new Error(`Unknown type: ${typeof arg}`)
     }
