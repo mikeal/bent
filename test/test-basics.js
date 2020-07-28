@@ -137,6 +137,24 @@ if (process.browser) {
   })
 }
 
+test('multiple status', async () => {
+  const request = bent('string', [200, 201])
+  const str200 = await request(u('/echo.js?body=ok'))
+  same(str200, 'ok')
+
+  const str201 = await request(u('/echo.js?statusCode=201&body=ok'))
+  same(str201, 'ok')
+
+  try {
+    await request(u('/echo.js?statusCode=202&body=ok'))
+    throw new Error('Call should have thrown.')
+  } catch (e) {
+    same(e.message, process.browser ? null : 'OK')
+    // basic header test
+    same(e.headers['content-length'], '2')
+  }
+})
+
 test('PUT stream', async () => {
   const body = Buffer.from(Math.random().toString())
   const request = bent('PUT', 'json')
