@@ -29,7 +29,7 @@ module.exports = mkrequest => (...args) => {
     } else if (typeof arg === 'number') {
       statusCodes.add(arg)
     } else if (typeof arg === 'object') {
-      if (Array.isArray(arg)) {
+      if (Array.isArray(arg) || arg instanceof Set) {
         arg.forEach(code => statusCodes.add(code))
       } else {
         if (headers) {
