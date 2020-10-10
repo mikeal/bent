@@ -1,5 +1,6 @@
 'use strict'
 const encodings = new Set(['json', 'buffer', 'string'])
+const _credentials = new Set(['omit', 'same-origin', 'include'])
 
 module.exports = mkrequest => (...args) => {
   const statusCodes = new Set()
@@ -7,6 +8,7 @@ module.exports = mkrequest => (...args) => {
   let encoding
   let headers
   let baseurl = ''
+  let credentials
 
   args.forEach(arg => {
     if (typeof arg === 'string') {
@@ -19,6 +21,8 @@ module.exports = mkrequest => (...args) => {
         }
       } else if (arg.startsWith('http:') || arg.startsWith('https:')) {
         baseurl = arg
+      } else if (_credentials.has(arg)) {
+        credentials = arg
       } else {
         if (encodings.has(arg)) {
           encoding = arg
@@ -47,5 +51,5 @@ module.exports = mkrequest => (...args) => {
     statusCodes.add(200)
   }
 
-  return mkrequest(statusCodes, method, encoding, headers, baseurl)
+  return mkrequest(statusCodes, method, encoding, headers, baseurl, credentials)
 }
