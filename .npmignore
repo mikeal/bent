@@ -1,0 +1,9 @@
+.git/
+.github/
+node_modules/
+
+# CI test files
+test/
+
+# npm package files
+package-lock.json
