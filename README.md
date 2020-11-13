@@ -4,7 +4,7 @@
 
 Functional HTTP client for Node.js and Browsers with async/await.
 
-*Incredibly small browser version built on fetch with no external dependencies or polyfills.*
+*Incredibly small browser version built on fetch with 3 small external dependencies.*
 
 ## Usage
 
