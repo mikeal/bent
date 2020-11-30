@@ -77,7 +77,7 @@ using the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuff
 * **body**: Request body. Can be a string, a stream (node.js), a buffer (node.js) (see note below),
   an ArrayBuffer (browser), or a JSON object.
 * **headers**: An object of any headers you need to set for just this request.
-* **method**: Optional ALLCAPS method which overrides any previously set method
+* **method**: Optional ALLCAPS method overrides any previously set method
 
 ```javascript
 const bent = require('bent')
