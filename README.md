@@ -58,8 +58,8 @@ The following options are available.
   `'json'`. By default, the response object/stream will be returned instead
   of a decoded response. *Browser returns `ArrayBuffer` instead of `Buffer`.*
 * **Status Codes**: Any number will be considered an acceptable status code.
-  By default, `200` is the only acceptable status code. When any status codes
-  are provided, `200` must be included explicitly in order to be acceptable.
+  By default, `200` and `201` are the only acceptable status codes. When any status codes
+  are provided, `200` and `201` must be included explicitly in order to be acceptable.
 * **Headers**: An object can be passed to set request headers.
 * **Base URL**: Any string that begins with 'https:' or 'http:' is
   considered the Base URL. Subsequent queries need only pass the remaining
