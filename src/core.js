@@ -45,6 +45,7 @@ module.exports = mkrequest => (...args) => {
   if (!method) method = 'GET'
   if (statusCodes.size === 0) {
     statusCodes.add(200)
+    statusCodes.add(201)
   }
 
   return mkrequest(statusCodes, method, encoding, headers, baseurl)
