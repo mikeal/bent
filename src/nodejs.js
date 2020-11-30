@@ -93,7 +93,7 @@ const decodings = res => {
   }
 }
 
-const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
+const mkrequest = (statusCodes, _method, encoding, headers, baseurl) => (_url, body = null, _headers = {}, method = _method) => {
   _url = baseurl + (_url || '')
   const parsed = new URL(_url)
   let h
