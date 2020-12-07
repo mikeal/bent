@@ -93,91 +93,92 @@ const decodings = res => {
   }
 }
 
-const mkrequest = (statusCodes, method, encoding, headers, baseurl) => { const inner = (_url, body = null, _headers = {}) => {
-  _url = baseurl + (_url || '')
-  const parsed = new URL(_url)
-  let h
-  if (parsed.protocol === 'https:') {
-    h = https
-  } else if (parsed.protocol === 'http:') {
-    h = http
-  } else {
-    throw new Error(`Unknown protocol, ${parsed.protocol}`)
-  }
-  const request = {
-    path: parsed.pathname + parsed.search,
-    port: parsed.port,
-    method: method,
-    headers: { ...(headers || {}), ..._headers },
-    hostname: parsed.hostname
-  }
-  if (parsed.username || parsed.password) {
-    request.auth = [parsed.username, parsed.password].join(':')
-  }
-  const c = caseless(request.headers)
-  if (encoding === 'json') {
-    if (!c.get('accept')) {
-      c.set('accept', 'application/json')
+const mkrequest = (statusCodes, method, encoding, headers, baseurl) => {
+  const inner = (_url, body = null, _headers = {}) => {
+    _url = baseurl + (_url || '')
+    const parsed = new URL(_url)
+    let h
+    if (parsed.protocol === 'https:') {
+      h = https
+    } else if (parsed.protocol === 'http:') {
+      h = http
+    } else {
+      throw new Error(`Unknown protocol, ${parsed.protocol}`)
     }
-  }
-  if (!c.has('accept-encoding')) {
-    c.set('accept-encoding', acceptEncoding)
-  }
-  return new Promise((resolve, reject) => {
-    if (inner.timeout && typeof inner.timeout === 'number' && inner.timeout > 0) {
-      Object.assign(request, { timeout: inner.timeout });
+    const request = {
+      path: parsed.pathname + parsed.search,
+      port: parsed.port,
+      method: method,
+      headers: { ...(headers || {}), ..._headers },
+      hostname: parsed.hostname
     }
-    const req = h.request(request, async res => {
-      res = getResponse(res)
-      res.on('error', reject)
-      decodings(res)
-      res.status = res.statusCode
-      if (!statusCodes.has(res.statusCode)) {
-        return reject(new StatusError(res))
+    if (parsed.username || parsed.password) {
+      request.auth = [parsed.username, parsed.password].join(':')
+    }
+    const c = caseless(request.headers)
+    if (encoding === 'json') {
+      if (!c.get('accept')) {
+        c.set('accept', 'application/json')
       }
-
-      if (!encoding) return resolve(res)
-      else {
-        /* istanbul ignore else */
-        if (encoding === 'buffer') {
-          resolve(res.arrayBuffer())
-        } else if (encoding === 'json') {
-          resolve(res.json())
-        } else if (encoding === 'string') {
-          resolve(res.text())
+    }
+    if (!c.has('accept-encoding')) {
+      c.set('accept-encoding', acceptEncoding)
+    }
+    return new Promise((resolve, reject) => {
+      if (inner.timeout && typeof inner.timeout === 'number' && inner.timeout > 0) {
+        Object.assign(request, { timeout: inner.timeout })
+      }
+      const req = h.request(request, async res => {
+        res = getResponse(res)
+        res.on('error', reject)
+        decodings(res)
+        res.status = res.statusCode
+        if (!statusCodes.has(res.statusCode)) {
+          return reject(new StatusError(res))
         }
+
+        if (!encoding) return resolve(res)
+        else {
+        /* istanbul ignore else */
+          if (encoding === 'buffer') {
+            resolve(res.arrayBuffer())
+          } else if (encoding === 'json') {
+            resolve(res.json())
+          } else if (encoding === 'string') {
+            resolve(res.text())
+          }
+        }
+      })
+      req.on('error', reject)
+      if (body) {
+        if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+          body = bytes.native(body)
+        }
+        if (Buffer.isBuffer(body)) {
+        // noop
+        } else if (typeof body === 'string') {
+          body = Buffer.from(body)
+        } else if (isStream(body)) {
+          body.pipe(req)
+          body = null
+        } else if (typeof body === 'object') {
+          if (!c.has('content-type')) {
+            req.setHeader('content-type', 'application/json')
+          }
+          body = Buffer.from(JSON.stringify(body))
+        } else {
+          reject(new Error('Unknown body type.'))
+        }
+        if (body) {
+          req.setHeader('content-length', body.length)
+          req.end(body)
+        }
+      } else {
+        req.end()
       }
     })
-    req.on('error', reject)
-    if (body) {
-      if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
-        body = bytes.native(body)
-      }
-      if (Buffer.isBuffer(body)) {
-        // noop
-      } else if (typeof body === 'string') {
-        body = Buffer.from(body)
-      } else if (isStream(body)) {
-        body.pipe(req)
-        body = null
-      } else if (typeof body === 'object') {
-        if (!c.has('content-type')) {
-          req.setHeader('content-type', 'application/json')
-        }
-        body = Buffer.from(JSON.stringify(body))
-      } else {
-        reject(new Error('Unknown body type.'))
-      }
-      if (body) {
-        req.setHeader('content-length', body.length)
-        req.end(body)
-      }
-    } else {
-      req.end()
-    }
-  })
-}
-return inner;
+  }
+  return inner
 }
 
 module.exports = bent(mkrequest)
