@@ -247,6 +247,7 @@ if (process.browser) {
       })
     })
     const request = bent('POST')
+    request.timeout = 1000 * 20
     const response = request('http://localhost:9999', { ok: true }, { 'content-type': 'application/jose+json' })
     const info = await response
     same(info.statusCode, 200)
