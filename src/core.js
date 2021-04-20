@@ -38,7 +38,7 @@ module.exports = mkrequest => (...args) => {
         headers = arg
       }
     } else {
-      throw new Error(`Unknown type: ${typeof arg}`)
+      throw new Error(`Unknown type: ${typeof arg}. Make sure to call bent() with the right argument types, current arguments: ${args.map(arg => '' + arg)}`)
     }
   })
 
