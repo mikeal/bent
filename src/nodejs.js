@@ -108,7 +108,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     path: parsed.pathname + parsed.search,
     port: parsed.port,
     method: method,
-    headers: { ...(headers || {}), ..._headers },
+    headers: JSON.parse(JSON.stringify({ ...(headers || {}), ..._headers })),
     hostname: parsed.hostname
   }
   if (parsed.username || parsed.password) {
