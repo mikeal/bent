@@ -252,4 +252,21 @@ if (process.browser) {
     same(info.statusCode, 200)
     server.close()
   })
+
+  test('undefined headers', async () => {  
+    const server = http.createServer((request, response) => {
+      response.statusCode = 200
+      response.end()
+    })
+    await new Promise((resolve, reject) => {
+      server.listen(9999, () => {
+        resolve()
+      })
+    })
+    const request = bent('POST')
+    const response = request('http://localhost:9999', { ok: true }, { Authorization: undefined })
+    const info = await response
+    same(info.statusCode, 200)
+    server.close()
+  })
 }
