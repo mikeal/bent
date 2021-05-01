@@ -46,6 +46,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_u
 
   if (body) {
     if (body instanceof ArrayBuffer ||
+      body instanceof FormData ||
       ArrayBuffer.isView(body) ||
       typeof body === 'string'
     ) {
