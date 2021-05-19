@@ -114,7 +114,25 @@ test('status 201', async () => {
     await request(u('/echo.js?body=ok'))
     throw new Error('Call should have thrown.')
   } catch (e) {
-    same(e.message, 'Incorrect statusCode: 200')
+    same(e.message, process.browser ? null : 'OK')
+    // basic header test
+    same(e.headers['content-length'], '2')
+  }
+})
+
+test('multiple status', async () => {
+  const request = bent('string', [200, 201])
+  const str200 = await request(u('/echo.js?body=ok'))
+  same(str200, 'ok')
+
+  const str201 = await request(u('/echo.js?statusCode=201&body=ok'))
+  same(str201, 'ok')
+
+  try {
+    await request(u('/echo.js?statusCode=202&body=ok'))
+    throw new Error('Call should have thrown.')
+  } catch (e) {
+    same(e.message, process.browser ? null : 'Accepted')
     // basic header test
     same(e.headers['content-length'], '2')
   }
@@ -146,27 +164,55 @@ test('PUT JSON', async () => {
   same(info.headers['content-type'], 'application/json')
 })
 
-test('500 Response body', async () => {
-  const request = bent()
-  let body
-  let _e
-  try {
-    await request(u('/echo.js?statusCode=500&body=ok'))
-  } catch (e) {
-    _e = e
-    body = e.responseBody
-  }
-  const validate = buffer => {
-    if (process.browser) {
-      same(decode(buffer), 'ok')
-    } else {
-      same(buffer.toString(), 'ok')
+if (process.browser) {
+  test('500 Response body and message', async () => {
+    const request = bent()
+    let body
+    let _e
+    try {
+      await request(u('/echo.js?statusCode=500&body=ok'))
+    } catch (e) {
+      _e = e
+      body = e.responseBody
     }
-  }
-  validate(await body)
-  // should be able to access again
-  validate(await _e.responseBody)
-})
+    const validate = buffer => {
+      if (process.browser) {
+        same(decode(buffer), 'ok')
+      } else {
+        same(buffer.toString(), 'ok')
+      }
+    }
+    validate(await body)
+    // should be able to access again
+    validate(await _e.responseBody)
+
+    same(_e.message, null)
+  })
+} else {
+  test('500 Response body and message', async () => {
+    const request = bent()
+    let body
+    let _e
+    try {
+      await request(u('/echo.js?statusCode=500&body=ok'))
+    } catch (e) {
+      _e = e
+      body = e.responseBody
+    }
+    const validate = buffer => {
+      if (process.browser) {
+        same(decode(buffer), 'ok')
+      } else {
+        same(buffer.toString(), 'ok')
+      }
+    }
+    validate(await body)
+    // should be able to access again
+    validate(await _e.responseBody)
+
+    same(_e.message, 'Internal Server Error')
+  })
+}
 
 test('auth', async () => {
   const request = bent('https://test:pass@httpbin.org/basic-auth/test/pass', 'json')

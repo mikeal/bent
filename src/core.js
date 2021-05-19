@@ -30,11 +30,12 @@ module.exports = mkrequest => (...args) => {
     } else if (typeof arg === 'number') {
       statusCodes.add(arg)
     } else if (typeof arg === 'object') {
-      if (arg.constructor.name !== 'Object') {
-        agent = arg
-      } else if (headers) {
-        throw new Error('Cannot set headers twice.')
+      if (Array.isArray(arg) || arg instanceof Set) {
+        arg.forEach(code => statusCodes.add(code))
       } else {
+        if (headers) {
+          throw new Error('Cannot set headers twice.')
+        }
         headers = arg
       }
     } else {

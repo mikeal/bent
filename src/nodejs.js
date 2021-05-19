@@ -48,7 +48,8 @@ class StatusError extends Error {
     super(...params)
 
     Error.captureStackTrace(this, StatusError)
-    this.message = `Incorrect statusCode: ${res.statusCode}`
+    this.name = 'StatusError'
+    this.message = res.statusMessage
     this.statusCode = res.statusCode
     this.json = res.json
     this.text = res.text

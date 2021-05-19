@@ -2,9 +2,9 @@
 
 ![2377](https://img.shields.io/badge/compiled%20bundle-2k-brightgreen) ![1106](https://img.shields.io/badge/gzipped%20bundle-1k-brightgreen)
 
-Functional HTTP client for Node.js and Browsers w/ async/await.
+Functional HTTP client for Node.js and Browsers with async/await.
 
-*Incredibly small browser version built on fetch w/ no external dependencies or polyfills.*
+*Incredibly small browser version built on fetch with no external dependencies or polyfills.*
 
 ## Usage
 
@@ -75,7 +75,7 @@ The following options are available.
 The returned async function is used for subsequent requests.
 
 When working with Binary this library uses different types in the browser and Node.js. In Node.js all binary must be done
-the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer view type (UInt8Array, etc).
+using the `Buffer` type. In the browser you can use ArrayBuffer or any ArrayBuffer view type (UInt8Array, etc).
 
 ### `async request(url[, body=null, headers={}])`
 
