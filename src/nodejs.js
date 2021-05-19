@@ -93,7 +93,7 @@ const decodings = res => {
   }
 }
 
-const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, body = null, _headers = {}) => {
+const mkrequest = (statusCodes, method, encoding, headers, baseurl, agent) => (_url, body = null, _headers = {}) => {
   _url = baseurl + (_url || '')
   const parsed = new URL(_url)
   let h
@@ -110,6 +110,9 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => (_url, bo
     method: method,
     headers: { ...(headers || {}), ..._headers },
     hostname: parsed.hostname
+  }
+  if (agent != null) {
+    request.agent = agent
   }
   if (parsed.username || parsed.password) {
     request.auth = [parsed.username, parsed.password].join(':')
