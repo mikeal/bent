@@ -1,6 +1,5 @@
 'use strict'
-const http = require('http')
-const https = require('https')
+const { http, https } = require('follow-redirects')
 const { URL } = require('url')
 const isStream = require('is-stream')
 const caseless = require('caseless')

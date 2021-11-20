@@ -17,6 +17,7 @@
   "dependencies": {
     "bytesish": "^0.4.1",
     "caseless": "~0.12.0",
+    "follow-redirects": "^1.14.5",
     "is-stream": "^2.0.0"
   },
   "devDependencies": {
