@@ -7,6 +7,7 @@ module.exports = mkrequest => (...args) => {
   let encoding
   let headers
   let baseurl = ''
+  let agent
 
   args.forEach(arg => {
     if (typeof arg === 'string') {
@@ -47,5 +48,5 @@ module.exports = mkrequest => (...args) => {
     statusCodes.add(200)
   }
 
-  return mkrequest(statusCodes, method, encoding, headers, baseurl)
+  return mkrequest(statusCodes, method, encoding, headers, baseurl, agent)
 }
